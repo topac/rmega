@@ -13,11 +13,10 @@ module Rmega
 
       def encrypt key, data
         cipher.reset
-        cipher.padding=0
+        cipher.padding = 0
         cipher.encrypt
         cipher.key = key.pack packing
         result = cipher.update data.pack(packing)
-        # result << cipher.final
         result.unpack packing
       end
     end
