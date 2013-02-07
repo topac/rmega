@@ -18,6 +18,10 @@ module Rmega
       @b64a ||= ('A'..'Z').to_a + ('a'..'z').to_a + ('0'..'9').to_a + ["-", "_", "="]
     end
 
+    def a32_to_base64 a32
+      base64urlencode a32_to_str(a32)
+    end
+
     def base64urlencode string
       i = 0
       tmp_arr = []
