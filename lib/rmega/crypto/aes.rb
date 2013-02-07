@@ -17,7 +17,7 @@ module Rmega
         cipher.encrypt
         cipher.key = key.pack packing
         result = cipher.update data.pack(packing)
-        result << cipher.final
+        # result << cipher.final
         result.unpack packing
       end
     end
