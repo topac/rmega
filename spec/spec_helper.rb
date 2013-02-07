@@ -1,3 +1,5 @@
+require 'pry'
+
 def libpath
   File.expand_path File.join(File.dirname(__FILE__), '../lib')
 end

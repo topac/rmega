@@ -4,8 +4,8 @@ require File.expand_path('../lib/rmega/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Daniele Molteni"]
   gem.email         = ["dani.m.mobile@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.description   = %q{mega.co.nz ruby api}
+  gem.summary       = %q{mega.co.nz ruby api}
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($\)
@@ -17,5 +17,4 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency "pry"
   gem.add_development_dependency "rspec"
-  gem.add_dependency "execjs"
 end

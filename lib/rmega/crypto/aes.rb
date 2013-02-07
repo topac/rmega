@@ -3,21 +3,22 @@ module Rmega
     module Aes
       extend self
 
-      def js_script_path
-        File.join File.dirname(__FILE__), 'sjcl.js'
+      def packing
+        'l>*'
       end
 
-      def script_content
-        hook = 'var encrypt = function(key, data){aes = new sjcl.cipher.aes(key); return aes.encrypt(data);}'
-        File.read(js_script_path)+hook
-      end
-
-      def context
-        @context ||= ExecJS.compile script_content
+      def cipher
+        @cipher ||= OpenSSL::Cipher::AES.new 128, :CBC
       end
 
       def encrypt key, data
-        context.call 'encrypt', key, data
+        cipher.reset
+        cipher.padding=0
+        cipher.encrypt
+        cipher.key = key.pack packing
+        result = cipher.update data.pack(packing)
+        result << cipher.final
+        result.unpack packing
       end
     end
   end
