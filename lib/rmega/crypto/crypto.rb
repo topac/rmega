@@ -15,5 +15,9 @@ module Rmega
       end
       pkey
     end
+
+    def prepare_key_pw password_str
+      prepare_key Utils.str_to_a32(password_str)
+    end
   end
 end
