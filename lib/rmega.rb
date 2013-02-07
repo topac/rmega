@@ -1,3 +1,4 @@
+require "openssl"
 require "rmega/version"
 require "rmega/utils"
 require "rmega/crypto/aes"
