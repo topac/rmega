@@ -16,4 +16,12 @@ describe Rmega::Utils do
       described_class.a32_to_str(a32).should == string
     end
   end
+
+  describe '#base64urlencode' do
+    it 'returns the expected value' do
+      string = 'ice_lord'
+      result = 'aWNlX2xvcmQ'
+      described_class.base64urlencode(string).should == result
+    end
+  end
 end
