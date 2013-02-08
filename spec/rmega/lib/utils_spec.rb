@@ -44,4 +44,12 @@ describe Rmega::Utils do
       described_class.base64urldecode(encoded_value).should == result
     end
   end
+
+  describe '#base64_to_a32' do
+    it 'returns the expected value' do
+      encoded_value = "YmF0dGxlc3RhciBnYWxhY3RpY2E"
+      result = [1650553972, 1818588020, 1634869351, 1634492771, 1953063777]
+      described_class.base64_to_a32(encoded_value).should == result
+    end
+  end
 end
