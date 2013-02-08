@@ -6,6 +6,10 @@ describe Rmega::Utils do
       string = 'johnsnow'
       a32 = [1785686126, 1936617335]
       described_class.str_to_a32(string).should == a32
+
+      string = 'sjobs@apple.com'
+      a32 = [1936355170, 1933599088, 1886151982, 1668246784]
+      described_class.str_to_a32(string).should == a32
     end
   end
 

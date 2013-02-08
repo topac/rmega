@@ -7,7 +7,14 @@ module Rmega
     end
 
     def str_to_a32 string
-      string.unpack packing
+      a32 = Array.new((string.size + 3) >> 2)
+
+      string.size.times do |i|
+        x = string[i].ord << (24 - (i & 3) * 8)
+        a32[i >> 2] = a32[i >> 2] ? (a32[i >> 2] | x) : x
+      end
+
+      a32
     end
 
     def a32_to_str a32
