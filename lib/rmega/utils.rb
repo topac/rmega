@@ -29,6 +29,10 @@ module Rmega
       base64urlencode a32_to_str(a32)
     end
 
+    def base64_to_a32 base64
+      str_to_a32 base64urldecode(base64)
+    end
+
     def base64urlencode string
       i = 0
       tmp_arr = []
