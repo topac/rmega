@@ -16,4 +16,12 @@ describe Rmega::Crypto do
       described_class.prepare_key_pw(password).should == result
     end
   end
+
+  describe '#stringhash' do
+    it 'returns the expected value' do
+      string = 'sjobs@apple.com'
+      key = [-812846736, -655070268, -844240819, 1006009750]
+      described_class.stringhash(key, string).should == 'snWuwnlz45w'
+    end
+  end
 end

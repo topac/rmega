@@ -19,5 +19,15 @@ module Rmega
     def prepare_key_pw password_str
       prepare_key Utils.str_to_a32(password_str)
     end
+
+    def stringhash aes_key, string
+      s32 = Utils::str_to_a32 string
+      h32 = [0,0,0,0]
+
+      s32.size.times { |i| h32[i & 3] ^= s32[i] }
+      16384.times { h32 = Aes.encrypt aes_key, h32 }
+
+      Utils::a32_to_base64 [h32[0],h32[2]]
+    end
   end
 end
