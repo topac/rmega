@@ -55,5 +55,45 @@ module Rmega
       r = string.size % 3
       (r != 0) ? enc[0..r - 4] : enc
     end
+
+    def base64urldecode data
+      data += '=='[((2-data.length*3)&3)..-1]
+
+      i = 0
+      ac = 0
+      dec = ""
+      tmp_arr = []
+
+      return data unless data
+
+      while i < data.size
+        h1 = b64a.index data[i]
+        i += 1
+        h2 = b64a.index data[i]
+        i += 1
+        h3 = b64a.index data[i]
+        i += 1
+        h4 = b64a.index data[i]
+        i += 1
+
+        bits = h1 << 18 | h2 << 12 | h3 << 6 | h4
+
+        o1 = bits >> 16 & 0xff
+        o2 = bits >> 8 & 0xff
+        o3 = bits & 0xff
+
+        ac += 1
+
+        if h3 == 64
+          tmp_arr[ac] = o1.chr
+        elsif h4 == 64
+          tmp_arr[ac] = o1.chr + o2.chr
+        else
+          tmp_arr[ac] = o1.chr + o2.chr + o3.chr
+        end
+      end
+
+      tmp_arr.join ''
+    end
   end
 end
