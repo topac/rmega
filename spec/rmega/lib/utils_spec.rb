@@ -36,4 +36,12 @@ describe Rmega::Utils do
       described_class.a32_to_base64(a32).should == result
     end
   end
+
+  describe '#base64urldecode' do
+    it 'returns the expected value' do
+      encoded_value = "c29ycnkgaSBhbSBidXN5"
+      result = "sorry i am busy"
+      described_class.base64urldecode(encoded_value).should == result
+    end
+  end
 end
