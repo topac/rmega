@@ -2,9 +2,15 @@ module Rmega
   class Session
     attr_accessor :email, :request_id
 
-    def initialize email
+    def initialize email, password_str
       self.email = email
-      self.request_id = 1259519804
+      self.request_id = random_request_id
+
+      login password_str
+    end
+
+    def random_request_id
+      rand(1E7..1E9).to_i
     end
 
     def login password_str
@@ -14,10 +20,7 @@ module Rmega
 
     def request body
       self.request_id += 1
-      puts body
-      resp = HTTParty.post "#{api_url}?id=#{request_id}", :body => body
-      puts resp.body
-      resp
+      HTTParty.post "#{api_url}?id=#{request_id}", :body => body
     end
 
     def api_url
