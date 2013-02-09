@@ -19,6 +19,15 @@ module Rmega
         result = cipher.update data.pack(packing)
         result.unpack packing
       end
+
+      def decrypt key, data
+        cipher.reset
+        cipher.padding = 0
+        cipher.decrypt
+        cipher.key = key.pack packing
+        result = cipher.update data.pack(packing)
+        result.unpack packing
+      end
     end
   end
 end
