@@ -7,14 +7,9 @@ module Rmega
     end
 
     def str_to_a32 string
-      a32 = Array.new((string.size + 3) >> 2)
-
-      string.size.times do |i|
-        x = string[i].ord << (24 - (i & 3) * 8)
-        a32[i >> 2] = a32[i >> 2] ? (a32[i >> 2] | x) : x
-      end
-
-      a32
+      pad_to = string.bytesize + ((string.bytesize) % 4)
+      string = string.ljust pad_to, "\x00"
+      string.unpack packing
     end
 
     def a32_to_str a32
@@ -71,22 +66,20 @@ module Rmega
       return data unless data
 
       while i < data.size
-        h1 = b64a.index data[i]
+        h1 = b64a.index(data[i]) || -1
         i += 1
-        h2 = b64a.index data[i]
+        h2 = b64a.index(data[i]) || -1
         i += 1
-        h3 = b64a.index data[i]
+        h3 = b64a.index(data[i]) || -1
         i += 1
-        h4 = b64a.index data[i]
+        h4 = b64a.index(data[i]) || -1
         i += 1
 
-        bits = h1 << 18 | h2 << 12 | h3 << 6 | h4
+        bits = (h1 << 18) | (h2 << 12) | (h3 << 6) | h4
 
         o1 = bits >> 16 & 0xff
         o2 = bits >> 8 & 0xff
         o3 = bits & 0xff
-
-        ac += 1
 
         if h3 == 64
           tmp_arr[ac] = o1.chr
@@ -95,6 +88,8 @@ module Rmega
         else
           tmp_arr[ac] = o1.chr + o2.chr + o3.chr
         end
+
+        ac += 1
       end
 
       tmp_arr.join ''
