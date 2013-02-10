@@ -94,5 +94,44 @@ module Rmega
 
       tmp_arr.join ''
     end
+
+    def mpi2b s
+      bn = 1
+      r = [0]
+      rn = 0
+      sb = 256
+      sn = s.size
+      bm = 268435455
+      c = nil
+
+      return 0 if sn < 2
+
+      len = (sn - 2) * 8
+      bits = s[0].ord * 256 + s[1].ord
+
+      return 0 if bits > len or bits < len - 8
+
+      len.times do |n|
+        sb = sb << 1
+
+        if sb > 255
+          sb = 1
+          c = s[sn -= 1].ord
+        end
+
+        if bn > bm
+          bn = 1
+          r[rn += 1] = 0
+        end
+
+        if (c & sb) and (c & sb != 0)
+          r[rn] = r[rn] ? (r[rn] | bn) : bn
+        end
+
+        bn = bn << 1
+      end
+      r
+    end
+
   end
 end
