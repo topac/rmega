@@ -55,4 +55,12 @@ describe Rmega::Utils do
       described_class.base64_to_a32(encoded_value).should == result
     end
   end
+
+  describe '#b2s' do
+    it 'returns the expected value' do
+      value = [123, 213123, 321354, 5435, 4545, 23434, 6665656]
+      result = [1706407936, 95985664, 297861121, 1404044519, 1241527304, 805306491]
+      described_class.str_to_a32(described_class.b2s(value)).should == result
+    end
+  end
 end

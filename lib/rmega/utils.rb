@@ -133,5 +133,42 @@ module Rmega
       r
     end
 
+    def b2s b
+      bs = 28
+      bm = 268435455
+      bn = 1; bc = 0; r = [0]; rb = 1; rn = 0
+      bits = b.length * bs
+      rr = ''
+
+      bits.times do |n|
+        if (b[bc] & bn) and (b[bc] & bn) != 0
+          r[rn] = r[rn] ? (r[rn] | rb) : rb
+        end
+
+        rb = rb << 1
+
+        if rb > 255
+          rb = 1
+          r[rn += 1] = 0
+        end
+
+        bn = bn << 1
+
+        if bn > bm
+          bn = 1
+          bc += 1
+        end
+      end
+
+      while rn >= 0 && r[rn] == 0
+        rn -= 1
+      end
+
+      (rn + 1).times do |n|
+        rr = r[n].chr + rr
+      end
+
+      rr
+    end
   end
 end
