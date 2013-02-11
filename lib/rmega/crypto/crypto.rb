@@ -29,5 +29,42 @@ module Rmega
 
       Utils::a32_to_base64 [h32[0],h32[2]]
     end
+
+    def decrypt_key key, data
+      return Aes.decrypt(key, data) if data.size == 4
+
+      x = []
+
+      (0..data.size - 4).step(4) do |i|
+        cdata = [data[i], data[i+1], data[i+2], data[i+3]]
+        x.concat Aes.decrypt(key, cdata)
+      end
+      x
+    end
+
+    def get_sid2 password_str, csid, privk, k
+      r = false
+
+      aes_key = prepare_key_pw password_str
+      k = decrypt_key aes_key, Utils.base64_to_a32(k)
+      aes_key = k
+
+      # if csid ...
+      t = Utils.mpi2b Utils.base64urldecode(csid)
+      privk = Utils.a32_to_str decrypt_key(aes_key, Utils.base64_to_a32(privk))
+      rsa_privk = Array.new 4
+
+      # decompose private key
+      4.times do |i|
+        l = ((privk[0].ord * 256 + privk[1].ord + 7) >> 3) + 2
+        rsa_privk[i] = Utils.mpi2b privk[0..l]
+        privk = privk[l..-1]
+      end
+
+      # todo
+      # decrypted_t = RSAdecrypt t, rsa_privk[2], rsa_privk[0], rsa_privk[1], rsa_privk[3]
+      # enc_decrypted_t =  base64urlencode b2s(decrypted_t).substr(0,43)
+      # r = [k, enc_decrypted_t, rsa_privk]
+    end
   end
 end
