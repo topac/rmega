@@ -57,14 +57,14 @@ module Rmega
       # decompose private key
       4.times do |i|
         l = ((privk[0].ord * 256 + privk[1].ord + 7) >> 3) + 2
-        rsa_privk[i] = Utils.mpi2b privk[0..l]
+        rsa_privk[i] = Utils.mpi2b privk[0..l-1]
         privk = privk[l..-1]
       end
 
       # todo - remove execjs and build the key using the ruby lib
       # rsa_key = build_rsa_key rsa_privk
       decrypted_t = Rsa.decrypt t, privk
-      sid =  Utils.base64urlencode Utils.b2s(decrypted_t)[0..43]
+      sid =  Utils.base64urlencode Utils.b2s(decrypted_t)[0..42]
       r = [k, sid, rsa_privk]
       sid
     end
