@@ -1,10 +1,11 @@
 module Rmega
   class Session
-    attr_accessor :email, :request_id
+    attr_accessor :email, :request_id, :sid, :requests_timeout
 
     def initialize email, password_str
       self.email = email
       self.request_id = random_request_id
+      self.requests_timeout = 20
 
       login password_str
     end
@@ -15,12 +16,16 @@ module Rmega
 
     def login password_str
       uh = Crypto.stringhash Crypto.prepare_key_pw(password_str), email
-      response = request '[{"a":"us","user":"'+email+'","uh":"'+uh+'"}]'
+      resp = request '[{"a":"us","user":"'+email+'","uh":"'+uh+'"}]'
+      resp = resp.first
+      self.sid = Crypto.get_sid2 password_str, resp['csid'], resp['privk'], resp['k']
     end
 
     def request body
       self.request_id += 1
-      HTTParty.post "#{api_url}?id=#{request_id}", :body => body
+      query_string = "?id=#{request_id}"
+      query_string << "sid=#{sid}" if sid
+      HTTParty.post "#{api_url}#{query_string}", :body => body, :timeout => requests_timeout
     end
 
     def api_url

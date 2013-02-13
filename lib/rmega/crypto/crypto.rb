@@ -61,11 +61,12 @@ module Rmega
         privk = privk[l..-1]
       end
 
-      # todo
+      # todo - remove execjs and build the key using the ruby lib
       # rsa_key = build_rsa_key rsa_privk
       decrypted_t = Rsa.decrypt t, privk
-      enc_decrypted_t =  Utils.base64urlencode Utils.b2s(decrypted_t)[0..43]
-      r = [k, enc_decrypted_t, rsa_privk]
+      sid =  Utils.base64urlencode Utils.b2s(decrypted_t)[0..43]
+      r = [k, sid, rsa_privk]
+      sid
     end
   end
 end
