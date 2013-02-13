@@ -62,9 +62,10 @@ module Rmega
       end
 
       # todo
-      # decrypted_t = RSAdecrypt t, rsa_privk[2], rsa_privk[0], rsa_privk[1], rsa_privk[3]
-      # enc_decrypted_t =  base64urlencode b2s(decrypted_t).substr(0,43)
-      # r = [k, enc_decrypted_t, rsa_privk]
+      # rsa_key = build_rsa_key rsa_privk
+      decrypted_t = Rsa.decrypt t, privk
+      enc_decrypted_t =  Utils.base64urlencode Utils.b2s(decrypted_t)[0..43]
+      r = [k, enc_decrypted_t, rsa_privk]
     end
   end
 end
