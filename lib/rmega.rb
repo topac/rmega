@@ -8,7 +8,7 @@ require "rmega/utils"
 require "rmega/crypto/rsa"
 require "rmega/crypto/aes"
 require "rmega/crypto/crypto"
-require "rmega/commands"
+require "rmega/node"
 require "rmega/session"
 
 module Rmega
