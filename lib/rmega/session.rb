@@ -1,7 +1,5 @@
 module Rmega
   class Session
-    include Commands
-
     attr_accessor :email, :request_id, :sid, :requests_timeout, :master_key
 
     def initialize email, password_str
@@ -22,16 +20,17 @@ module Rmega
       t = Utils.mpi2b Utils.base64urldecode(csid)
       privk = Utils.a32_to_str Crypto.decrypt_key(self.master_key, Utils.base64_to_a32(privk))
       rsa_privk = Array.new 4
+      # else if tsid (todo)
 
-      # decompose private key
+      # Decompose private key
       4.times do |i|
         l = ((privk[0].ord * 256 + privk[1].ord + 7) >> 3) + 2
         rsa_privk[i] = Utils.mpi2b privk[0..l-1]
         privk = privk[l..-1]
       end
 
-      # todo - remove execjs and build the key using the ruby lib
-      # rsa_key = build_rsa_key rsa_privk
+      # TODO - remove execjs and build the key using the ruby lib
+      # rsa_key = Crypto::Rsa.build_rsa_key rsa_privk
       decrypted_t = Crypto::Rsa.decrypt t, rsa_privk
       self.sid =  Utils.base64urlencode Utils.b2s(decrypted_t)[0..42]
     end
@@ -67,6 +66,20 @@ module Rmega
 
     def api_url
       "https://eu.api.mega.co.nz/cs"
+    end
+
+
+    # Actions
+
+    def nodes
+      nodes = request a: 'f', c: 1
+      nodes['f'].map { |file_data| Node.new(self, file_data) }
+    end
+
+    def search regexp
+      nodes.select do |node|
+        node.name and node.name =~ regexp
+      end
     end
   end
 end
