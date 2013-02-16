@@ -36,7 +36,7 @@ module Rmega
       x = []
 
       (0..data.size).step(4) do |i|
-        cdata = [data[i], data[i+1], data[i+2] || 0, data[i+3] || 0].compact
+        cdata = [data[i] || 0, data[i+1] || 0, data[i+2] || 0, data[i+3] || 0]
         x.concat Rmega::Crypto::Aes.decrypt(key, cdata)
       end
       x
