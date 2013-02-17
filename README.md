@@ -1,6 +1,39 @@
 # Rmega
 
-TODO: Write a gem description
+Ruby library for the Mega.co.nz API
+
+
+## Usage
+
+```ruby
+session = Rmega.create_session 'your_email','your_password'
+
+# And than you access the session with Rmega.current_session
+
+# Fetch all the nodes (files, folders, ecc.)
+nodes = Rmega::Node.all
+
+# Find all nodes which name match a regexp
+nodes = Rmega::Node.find_all_by_name /my.document/i
+
+# Trash a node
+node.move_to_trash
+
+# Gets the public url (the sharable one) of file
+node.public_url
+
+# See the attributes of a node
+node.attributes
+
+# See the public handle of a node
+node.public_handle
+
+# Find all nodes of certain type
+# types are: file, dir, root, inbox, trash
+files   = Rmega::Node.find_all_by_type :file
+folders = Rmega::Node.find_all_by_type :dir
+
+```
 
 ## Installation
 
@@ -15,10 +48,6 @@ And then execute:
 Or install it yourself as:
 
     $ gem install rmega
-
-## Usage
-
-TODO: Write usage instructions here
 
 ## Contributing
 
