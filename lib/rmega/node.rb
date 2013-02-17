@@ -41,7 +41,7 @@ module Rmega
     # Member action
 
     def public_url
-      return nil if type != :file
+      raise "Not a file node" if type != :file
       b64_dec_key = Utils.a32_to_base64 decrypted_file_key[0..7]
       "https://mega.co.nz/#!#{public_handle}!#{b64_dec_key}"
     end
@@ -56,6 +56,14 @@ module Rmega
 
     def public_handle
       @public_handle ||= session.request(a: 'l', n: handle)
+    end
+
+    def size
+      data['s']
+    end
+
+    def storage_url
+      @storage_url ||= session.request(a: 'g', g: 1, n: handle)['g']
     end
 
     def handle
