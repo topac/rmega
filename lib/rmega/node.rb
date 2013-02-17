@@ -23,18 +23,18 @@ module Rmega
       nodes['f'].map { |node_data| new(node_data) }
     end
 
-    def self.find_by_type type
+    def self.find_all_by_type type
       all.select { |n| n.type == type }
     end
 
-    def self.find_by_name name_regexp
+    def self.find_all_by_name name_regexp
       all.select do |node|
         node.name and node.name =~ name_regexp
       end
     end
 
     def self.find_trash
-      find_by_type(:trash).first
+      find_all_by_type(:trash).first
     end
 
 
