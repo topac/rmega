@@ -67,19 +67,5 @@ module Rmega
     def api_url
       "https://eu.api.mega.co.nz/cs"
     end
-
-
-    # Actions
-
-    def nodes
-      nodes = request a: 'f', c: 1
-      nodes['f'].map { |file_data| Node.new(self, file_data) }
-    end
-
-    def search regexp
-      nodes.select do |node|
-        node.name and node.name =~ regexp
-      end
-    end
   end
 end

@@ -20,4 +20,12 @@ module Rmega
       logger
     end
   end
+
+  def self.create_session email, password_str
+    @current_session = Session.new email, password_str
+  end
+
+  def self.current_session
+    @current_session
+  end
 end
