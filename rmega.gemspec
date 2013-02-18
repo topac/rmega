@@ -17,6 +17,6 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency "pry"
   gem.add_development_dependency "rspec"
-  gem.add_dependency "httparty"
+  gem.add_dependency "httpclient"
   gem.add_dependency "execjs"
 end

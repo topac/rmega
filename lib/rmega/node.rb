@@ -62,6 +62,10 @@ module Rmega
       data['h']
     end
 
+    def filesize
+      data['s']
+    end
+
     def owner_key
       data['k'].split(':').first
     end
@@ -102,5 +106,57 @@ module Rmega
       founded_type = self.class.types.find { |k, v| data['t'] == v }
       founded_type.first if founded_type
     end
+
+    def storage_url
+      @storage_url ||= session.request(a: 'g', g: 1, n: handle)
+    end
+
+    def chunks
+      list = {}
+      p = 0
+      pp = 0
+      i = 1
+
+      while i <= 8 and p < filesize - i * 0x20000
+        list[p] = i * 0x20000
+        pp = p
+        p += list[p]
+        i += 1
+      end
+
+      while p < filesize
+        list[p] = 0x100000
+        pp = p
+        p += list[p]
+      end
+
+      if filesize - pp > 0
+        list[pp] = filesize - pp
+      end
+      list
+    end
+
+    def download
+      k = decrypted_file_key
+      k = [k[0] ^ k[4], k[1] ^ k[5], k[2] ^ k[6], k[3] ^ k[7]]
+      iv = decrypted_file_key[4..5] + [0, 0]
+
+      ctr_init = ((iv[0] << 32) + iv[1]) << 64
+      ctr_incr = 128
+
+      cipher = Crypto::AesCtrCipher.new k, iv
+
+      connection = HTTPClient.new.get_async storage_url
+      message = connection.pop
+
+      # Thread.new do
+      chunks.each do |chunk_start, chunk_size|
+        buffer = message.content.read(chunk_size)
+        # buffer = cipher.decrypt buffer
+        puts buffer
+      end
+      # end
+    end
+
   end
 end

@@ -58,10 +58,10 @@ module Rmega
       url << "&sid=#{sid}" if sid
       Rmega.logger.debug "POST #{url}"
       Rmega.logger.debug "#{body.inspect}"
-      response = HTTParty.post url, :body => [body].to_json, :timeout => requests_timeout
+      response = HTTPClient.new.post url, [body].to_json
       Rmega.logger.debug "#{response.code}"
-      Rmega.logger.debug "#{response}"
-      response.first
+      Rmega.logger.debug "#{response.body}"
+      JSON.parse(response.body).first
     end
 
     def api_url
