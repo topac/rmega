@@ -160,6 +160,7 @@ module Rmega
       chunks.each do |chunk_start, chunk_size|
         buffer = message.content.read chunk_size
 
+        # TODO: should be (chunk_start/0x1000000000) >>> 0, (chunk_start/0x10) >>> 0
         nonce = [nonce[0], nonce[1], (chunk_start/0x1000000000) >> 0, (chunk_start/0x10) >> 0]
         decrypted_buffer = Crypto::AesCtr.decrypt(k, nonce, buffer)[:plain]
         file.write(decrypted_buffer)
