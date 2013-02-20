@@ -2,11 +2,7 @@ module Rmega
   module Utils
     extend self
 
-    def packing
-      'l>*'
-    end
-
-    def format_bytes bytes, round=2
+    def format_bytes bytes, round = 2
       units = ['bytes', 'kb', 'MB', 'GB', 'TB', 'PB']
       e = (bytes == 0 ? 0 : Math.log(bytes)) / Math.log(1024)
       value = bytes.to_f / (1024 ** e.floor)
@@ -16,19 +12,19 @@ module Rmega
     def str_to_a32 string
       pad_to = string.bytesize + ((string.bytesize) % 4)
       string = string.ljust pad_to, "\x00"
-      string.unpack packing
+      string.unpack 'l>*'
     end
 
     def a32_to_str a32, len=nil
       if len
         b = []
         len.times do |i|
-          # TODO should be: ((a32[i>>2] >>> (24-(i & 3)*8)) & 255)
+          # TODO: should be ((a32[i>>2] >>> (24-(i & 3)*8)) & 255)
           b << ((a32[i>>2] >> (24-(i & 3)*8)) & 255)
         end
         b.pack 'C*'
       else
-        a32.pack packing
+        a32.pack 'l>*'
       end
     end
 
