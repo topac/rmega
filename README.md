@@ -28,6 +28,10 @@ node.attributes
 # See the public handle of a node
 node.public_handle
 
+# Download a file
+node.download '~/Download' # The name of the node is used
+node.download '~/Download/mydocument_42.zip' # Specify a new name
+
 # Find all nodes of certain type
 # types are: file, dir, root, inbox, trash
 files   = Rmega::Node.find_all_by_type :file

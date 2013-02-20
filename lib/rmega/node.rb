@@ -54,6 +54,10 @@ module Rmega
 
     # Other methods
 
+    # def logger
+    #   Rmega.logger
+    # end
+
     def public_handle
       @public_handle ||= session.request(a: 'l', n: handle)
     end
@@ -137,31 +141,28 @@ module Rmega
     end
 
     def download filepath
+      filepath = File.expand_path filepath
+      filepath = Dir.exists?(filepath) ? File.join(filepath, name) : filepath
+      print "Downloading into #{filepath} "
+
       k = decrypted_file_key
       k = [k[0] ^ k[4], k[1] ^ k[5], k[2] ^ k[6], k[3] ^ k[7]]
       nonce = decrypted_file_key[4..5]
 
-      # ctr_init = ((iv[0] << 32) + iv[1]) << 64
-      # ctr_incr = 128
-
+      file = File.open filepath, 'wb'
       connection = HTTPClient.new.get_async storage_url
       message = connection.pop
 
-      # Thread.new do
-      file = File.open filepath, 'wb'
       chunks.each do |chunk_start, chunk_size|
+        print '.'
         buffer = message.content.read(chunk_size)
-        # todo
-        # nonce += [(chunk_start/0x1000000000) >>> 0,(chunk_start/0x10) >>> 0]
-        puts '.'
-
-        nonce = nonce.concat [0, 0]
+        nonce = [nonce[0], nonce[1], (chunk_start/0x1000000000) >> 0, (chunk_start/0x10) >> 0]
         decrypted_buffer = Crypto::AesCtr.decrypt(k, nonce, buffer)[:plain]
         file.write(decrypted_buffer)
       end
-      # end
-      file.close
+      puts ' [DONE]'
+    ensure
+      file.close if file
     end
-
   end
 end
