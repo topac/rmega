@@ -6,6 +6,13 @@ module Rmega
       'l>*'
     end
 
+    def format_bytes bytes, round=2
+      units = ['bytes', 'kb', 'MB', 'GB', 'TB', 'PB']
+      e = (bytes == 0 ? 0 : Math.log(bytes)) / Math.log(1024)
+      value = bytes.to_f / (1024 ** e.floor)
+      "#{value.round(round)}#{units[e]}"
+    end
+
     def str_to_a32 string
       pad_to = string.bytesize + ((string.bytesize) % 4)
       string = string.ljust pad_to, "\x00"

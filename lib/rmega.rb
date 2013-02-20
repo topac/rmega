@@ -1,6 +1,7 @@
 require "openssl"
 require "httpclient"
 require "execjs"
+require "ruby-progressbar"
 require "json"
 require "logger"
 require "rmega/version"
