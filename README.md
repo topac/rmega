@@ -2,6 +2,10 @@
 
 Ruby library for the Mega.co.nz API
 
+<div style="background-color: #000000; border-radius: 8px">
+  <img src="https://eu.static.mega.co.nz/images/mega/logo.png" />
+</div>
+
 
 ## Usage
 
@@ -39,6 +43,7 @@ folders = Rmega::Node.find_all_by_type :dir
 
 ```
 
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -52,6 +57,7 @@ And then execute:
 Or install it yourself as:
 
     $ gem install rmega
+
 
 ## Contributing
 
