@@ -108,7 +108,7 @@ module Rmega
     end
 
     def storage_url
-      @storage_url ||= session.request(a: 'g', g: 1, n: handle)
+      @storage_url ||= session.request(a: 'g', g: 1, n: handle)['g']
     end
 
     def chunks
@@ -121,7 +121,7 @@ module Rmega
         list[p] = i * 0x20000
         pp = p
         p += list[p]
-        i += 1
+        i += 128
       end
 
       while p < filesize
@@ -136,26 +136,31 @@ module Rmega
       list
     end
 
-    def download
+    def download filepath
       k = decrypted_file_key
       k = [k[0] ^ k[4], k[1] ^ k[5], k[2] ^ k[6], k[3] ^ k[7]]
-      iv = decrypted_file_key[4..5] + [0, 0]
+      nonce = decrypted_file_key[4..5]
 
-      ctr_init = ((iv[0] << 32) + iv[1]) << 64
-      ctr_incr = 128
-
-      cipher = Crypto::AesCtrCipher.new k, iv
+      # ctr_init = ((iv[0] << 32) + iv[1]) << 64
+      # ctr_incr = 128
 
       connection = HTTPClient.new.get_async storage_url
       message = connection.pop
 
       # Thread.new do
+      file = File.open filepath, 'wb'
       chunks.each do |chunk_start, chunk_size|
         buffer = message.content.read(chunk_size)
-        # buffer = cipher.decrypt buffer
-        puts buffer
+        # todo
+        # nonce += [(chunk_start/0x1000000000) >>> 0,(chunk_start/0x10) >>> 0]
+        puts '.'
+
+        nonce = nonce.concat [0, 0]
+        decrypted_buffer = Crypto::AesCtr.decrypt(k, nonce, buffer)[:plain]
+        file.write(decrypted_buffer)
       end
       # end
+      file.close
     end
 
   end
