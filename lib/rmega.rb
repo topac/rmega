@@ -29,8 +29,8 @@ module Rmega
     end
   end
 
-  def self.create_session email, password_str
-    @current_session = Session.new email, password_str
+  def self.create_session email, password
+    @current_session = Session.new email, password
   end
 
   def self.current_session
