@@ -12,8 +12,17 @@ module Rmega
       string.unpack packing
     end
 
-    def a32_to_str a32
-      a32.pack packing
+    def a32_to_str a32, len=nil
+      if len
+        b = []
+        len.times do |i|
+          # TODO should be: ((a32[i>>2] >>> (24-(i & 3)*8)) & 255)
+          b << ((a32[i>>2] >> (24-(i & 3)*8)) & 255)
+        end
+        b.pack 'C*'
+      else
+        a32.pack packing
+      end
     end
 
     def b64a

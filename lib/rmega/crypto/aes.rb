@@ -15,8 +15,8 @@ module Rmega
         cipher.reset
         cipher.padding = 0
         cipher.encrypt
-        cipher.key = key.pack packing
-        result = cipher.update data.pack(packing)
+        cipher.key = key.respond_to?(:pack) ? key.pack(packing) : key
+        result = cipher.update data.respond_to?(:pack) ? data.pack(packing) : data
         result.unpack packing
       end
 
