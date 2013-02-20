@@ -1,9 +1,15 @@
+# Gem with ruby 1.9+
 require "openssl"
+require "json"
+require "logger"
+require "ostruct"
+
+# Gems in the bundle
 require "httpclient"
 require "execjs"
 require "ruby-progressbar"
-require "json"
-require "logger"
+
+# Require all the other files
 require "rmega/version"
 require "rmega/utils"
 require "rmega/crypto/rsa"
@@ -29,5 +35,12 @@ module Rmega
 
   def self.current_session
     @current_session
+  end
+
+  def self.options
+    @options ||= begin
+      defaults = {use_progressbar: true}
+      OpenStruct.new defaults
+    end
   end
 end
