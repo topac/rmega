@@ -143,7 +143,8 @@ module Rmega
     def download filepath
       filepath = File.expand_path filepath
       filepath = Dir.exists?(filepath) ? File.join(filepath, name) : filepath
-      print "Downloading into #{filepath} "
+      progress_format = "0kb / #{Utils.format_bytes(filesize)} [%B]"
+      progressbar = ProgressBar.create format: progress_format, total: filesize
 
       k = decrypted_file_key
       k = [k[0] ^ k[4], k[1] ^ k[5], k[2] ^ k[6], k[3] ^ k[7]]
@@ -154,13 +155,17 @@ module Rmega
       message = connection.pop
 
       chunks.each do |chunk_start, chunk_size|
-        print '.'
-        buffer = message.content.read(chunk_size)
+        buffer = message.content.read chunk_size
+
         nonce = [nonce[0], nonce[1], (chunk_start/0x1000000000) >> 0, (chunk_start/0x10) >> 0]
         decrypted_buffer = Crypto::AesCtr.decrypt(k, nonce, buffer)[:plain]
         file.write(decrypted_buffer)
+
+        progressbar.progress += chunk_size
+        progressbar.format "#{Utils.format_bytes(progressbar.progress)} / #{Utils.format_bytes(progressbar.total)} [%B]"
       end
-      puts ' [DONE]'
+
+      nil
     ensure
       file.close if file
     end
