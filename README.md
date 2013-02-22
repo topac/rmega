@@ -1,6 +1,7 @@
 # Rmega
 
-Ruby library for the Mega.co.nz API
+Ruby library for the Mega.co.nz API.  
+For ruby 1.9.3+
 
 <div style="background-color: #000000; border-radius: 8px">
   <img src="https://eu.static.mega.co.nz/images/mega/logo.png" />
@@ -10,36 +11,34 @@ Ruby library for the Mega.co.nz API
 ## Usage
 
 ```ruby
-session = Rmega.create_session 'your_email','your_password'
-
-# And than you access the session with Rmega.current_session
+storage = Rmega.login 'your_email', 'your_password'
 
 # Fetch all the nodes (files, folders, ecc.)
-nodes = Rmega::Node.all
+nodes = storage.nodes
 
 # Find all nodes which name match a regexp
-nodes = Rmega::Node.find_all_by_name /my.document/i
+nodes = storage.nodes_by_name /my.document/i
 
 # Trash a node
-node.move_to_trash
+my_node.trash
 
-# Gets the public url (the sharable one) of file
-node.public_url
+# Gets the public url (the sharable one) of a file
+my_node.public_url
 
 # See the attributes of a node
-node.attributes
-
-# See the public handle of a node
-node.public_handle
+my_node.attributes
 
 # Download a file
-node.download '~/Download' # The name of the node is used
-node.download '~/Download/mydocument_42.zip' # Specify a new name
+my_node.download '~/Download' # The name of the node is used
+my_node.download '~/Download/mydocument_42.zip' # Specify a new name
+
+# Download a file using a given url
+storage.download 'https://mega.co.nz/#!cER0GYbD!ZCHruEzLghAcEZuD44Dp0k--6m5duA08Xl4a_bUZYMI', '~/Download'
 
 # Find all nodes of certain type
 # types are: file, dir, root, inbox, trash
-files   = Rmega::Node.find_all_by_type :file
-folders = Rmega::Node.find_all_by_type :dir
+files   = storage.nodes_by_type :file
+folders = storage.nodes_by_type :dir
 
 ```
 
