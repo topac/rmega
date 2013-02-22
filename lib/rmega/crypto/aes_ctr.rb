@@ -46,7 +46,10 @@ module Rmega
 
         {plain: decrypted_data, mac: mac}
       end
+    end
 
+    def encrypt key, nonce, data
+      raise "todo"
     end
   end
 end
