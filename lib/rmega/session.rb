@@ -10,6 +10,10 @@ module Rmega
       login password_str
     end
 
+    def storage
+      @storage ||= Storage.new self
+    end
+
     def decrypt_master_key password_str, k
       ancrypted_key = Crypto.prepare_key_pw password_str
       self.master_key = Crypto.decrypt_key ancrypted_key, Utils.base64_to_a32(k)

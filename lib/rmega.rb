@@ -16,6 +16,7 @@ require "rmega/crypto/rsa"
 require "rmega/crypto/aes"
 require "rmega/crypto/aes_ctr"
 require "rmega/crypto/crypto"
+require "rmega/storage"
 require "rmega/node"
 require "rmega/session"
 
@@ -29,17 +30,14 @@ module Rmega
     end
   end
 
-  def self.create_session email, password
-    @current_session = Session.new email, password
-  end
-
-  def self.current_session
-    @current_session
+  def self.login email, password
+    session = Session.new email, password
+    session.storage
   end
 
   def self.options
     @options ||= begin
-      defaults = {use_progressbar: true}
+      defaults = {show_progress: true}
       OpenStruct.new defaults
     end
   end
