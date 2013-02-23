@@ -127,13 +127,12 @@ module Rmega
 
     def show_progress direction, total, increment = 0
       return unless Rmega.options.show_progress
-      @progressbar.progress += increment if @progressbar
-      current_progress = @progressbar.progress if @progressbar
-      format = "#{direction.to_s.capitalize} in progress #{Utils.format_bytes(current_progress || 0)} of #{Utils.format_bytes(total)} | %P% | %e        "
-      if !@progressbar or (@progressbar and increment.zero?)
-        @progressbar = ProgressBar.create format: format, total: total
-      end
+      @progressbar_progress = (@progressbar_progress || 0) + increment
+      format = "#{direction.to_s.capitalize} in progress #{Utils.format_bytes(@progressbar_progress)} of #{Utils.format_bytes(total)} | %P% | %e        "
+      @progressbar ||= ProgressBar.create format: format, total: total
+      @progressbar.reset if increment.zero?
       @progressbar.format format
+      @progressbar.progress += increment
     end
 
     def download path
