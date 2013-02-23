@@ -46,10 +46,44 @@ module Rmega
 
         {plain: decrypted_data, mac: mac}
       end
-    end
 
-    def encrypt key, nonce, data
-      raise "todo"
+      def encrypt key, nonce, data
+        raise "invalid nonce" if nonce.size != 4 or !nonce.respond_to?(:pack)
+        raise "invalid key" if key.size != 4 or !key.respond_to?(:pack)
+
+        ctr = nonce.dup
+        mac = [ctr[0], ctr[1], ctr[0], ctr[1]]
+        ab32 = Utils.str_to_a32 data
+        len = ab32.size - 3
+        enc = nil
+        last_i = 0
+
+        (0..len).step(4) do |i|
+          4.times { |x| mac[x] = mac[x] ^ (ab32[i+x] || 0) }
+          mac = Aes.encrypt key, mac
+          enc = Aes.encrypt key, ctr
+          4.times { |x|  ab32[i+x] = ab32[i+x] ^ enc[x] }
+          ctr[3] += 1
+          ctr[2] += 1 if ctr[3].zero?
+          last_i = i + 4
+        end
+
+        i = last_i
+
+        if i < ab32.size
+          v = [0, 0, 0, 0]
+          (i..a32.size).step(1) { |j| v[j-i] = ab32[j] }
+          4.times { |x| mac[x] = mac[x] ^ v[x] }
+          mac = Aes.encrypt key, mac
+          enc = Aes.encrypt key, ctr
+          4.times { |x| v[x] = v[x] ^ enc[x] }
+          (i..ab32.size).step(1) { |x| ab32[j] = v[j-i] }
+        end
+
+        decrypted_data = Utils.a32_to_str ab32, data.size
+        {data: decrypted_data, mac: mac}
+      end
+
     end
   end
 end
