@@ -39,6 +39,31 @@ module Rmega
 
     # Handle node download
 
+    def self.chunks size
+      list = {}
+      p = 0
+      pp = 0
+      i = 1
+
+      while i <= 8 and p < size - i * 0x20000
+        list[p] = i * 0x20000
+        pp = p
+        p += list[p]
+        i += 128
+      end
+
+      while p < size
+        list[p] = 0x100000
+        pp = p
+        p += list[p]
+      end
+
+      if size - pp > 0
+        list[pp] = size - pp
+      end
+      list
+    end
+
     def download public_url, path
       Node.initialize_by_public_url(session, public_url).download path
     end
@@ -60,15 +85,14 @@ module Rmega
       filesize = File.size local_path
       upld_url = upload_url filesize
 
-      # ul_key = Array.new(6).map { rand(0..0xFFFFFFFF) }
-      ul_key = [531247685, 326753478, 1343859905, 1265448499, 1193247048, 1858381079]
+      ul_key = Array.new(6).map { rand(0..0xFFFFFFFF) }
       aes_key = ul_key[0..3]
       nonce = ul_key[4..5]
       local_file = File.open local_path, 'rb'
       completion_file_handle = nil
       file_mac = [0, 0, 0, 0]
 
-      Node.chunks(filesize).each do |chunk_start, chunk_size|
+      self.class.chunks(filesize).each do |chunk_start, chunk_size|
         logger.info "#{chunk_start} => #{chunk_size}"
         buffer = local_file.read chunk_size
 
