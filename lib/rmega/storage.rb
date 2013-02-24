@@ -11,6 +11,22 @@ module Rmega
       Rmega.logger
     end
 
+
+    # Quota-related methods
+
+    def used_space
+      quota['cstrg']
+    end
+
+    def total_space
+      quota['mstrg']
+    end
+
+    def quota
+      session.request a: 'uq', strg: 1
+    end
+
+
     # Nodes finders
 
     def nodes
@@ -108,7 +124,6 @@ module Rmega
         logger.info "completion_file_handle = #{completion_file_handle.inspect}"
 
         file_mac = [file_mac[0] ^ chunk_mac[0], file_mac[1] ^ chunk_mac[1], file_mac[2] ^ chunk_mac[2], file_mac[3] ^ chunk_mac[3]]
-
         file_mac = Crypto::Aes.encrypt ul_key[0..3], file_mac
       end
 
