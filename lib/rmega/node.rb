@@ -93,35 +93,6 @@ module Rmega
       @storage_url ||= data['g'] || session.request(a: 'g', g: 1, n: handle)['g']
     end
 
-    def self.chunks size
-      list = {}
-      p = 0
-      pp = 0
-      i = 1
-
-      while i <= 8 and p < size - i * 0x20000
-        list[p] = i * 0x20000
-        pp = p
-        p += list[p]
-        i += 128
-      end
-
-      while p < size
-        list[p] = 0x100000
-        pp = p
-        p += list[p]
-      end
-
-      if size - pp > 0
-        list[pp] = size - pp
-      end
-      list
-    end
-
-    def chunks
-      self.class.chunks filesize
-    end
-
     def show_progress direction, total, increment = 0
       return unless Rmega.options.show_progress
       @progressbar_progress = (@progressbar_progress || 0) + increment
@@ -130,6 +101,10 @@ module Rmega
       @progressbar.reset if increment.zero?
       @progressbar.format format
       @progressbar.progress += increment
+    end
+
+    def chunks
+      session.storage.chunks filesize
     end
 
     def download path
