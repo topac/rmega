@@ -69,27 +69,24 @@ module Rmega
       end
     end
 
-    def decrypt_attributes
-      a32key = decrypted_file_key
-      if a32key.size > 4
-        a32key = [a32key[0] ^ a32key[4], a32key[1] ^ a32key[5], a32key[2] ^ a32key[6], a32key[3] ^ a32key[7]]
-      end
-      attributes = Crypto::Aes.decrypt a32key, Utils.base64_to_a32(data['a'] || data['at'])
-      attributes = Utils.a32_to_str attributes
-      JSON.parse attributes.gsub(/^MEGA/, '').rstrip
-    end
-
     def can_decrypt_attributes?
       !data['u'] or data['u'] == owner_key
     end
 
     def attributes
-      @attributes ||= decrypt_attributes if can_decrypt_attributes?
+      @attributes ||= begin
+        return nil unless can_decrypt_attributes?
+        Crypto.decrypt_attributes decrypted_file_key, (data['a'] || data['at'])
+      end
     end
 
     def type
       founded_type = self.class.types.find { |k, v| data['t'] == v }
       founded_type.first if founded_type
+    end
+
+    def delete
+      session.request a: 'd', n: handle
     end
 
     def storage_url
