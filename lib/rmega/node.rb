@@ -93,25 +93,15 @@ module Rmega
       @storage_url ||= data['g'] || session.request(a: 'g', g: 1, n: handle)['g']
     end
 
-    def show_progress direction, total, increment = 0
-      return unless Rmega.options.show_progress
-      @progressbar_progress = (@progressbar_progress || 0) + increment
-      format = "#{direction.to_s.capitalize} in progress #{Utils.format_bytes(@progressbar_progress)} of #{Utils.format_bytes(total)} | %P% | %e        "
-      @progressbar ||= ProgressBar.create format: format, total: total
-      @progressbar.reset if increment.zero?
-      @progressbar.format format
-      @progressbar.progress += increment
-    end
-
     def chunks
-      session.storage.chunks filesize
+      Storage.chunks filesize
     end
 
     def download path
       path = File.expand_path path
       path = Dir.exists?(path) ? File.join(path, name) : path
 
-      show_progress :download, filesize
+      Utils.show_progress :download, filesize
 
       k = decrypted_file_key
       k = [k[0] ^ k[4], k[1] ^ k[5], k[2] ^ k[6], k[3] ^ k[7]]
@@ -127,7 +117,7 @@ module Rmega
         nonce = [nonce[0], nonce[1], (chunk_start/0x1000000000) >> 0, (chunk_start/0x10) >> 0]
         decryption_result = Crypto::AesCtr.decrypt(k, nonce, buffer)
         file.write(decryption_result[:plain])
-        show_progress :download, filesize, chunk_size
+        Utils.show_progress :download, filesize, chunk_size
       end
 
       nil

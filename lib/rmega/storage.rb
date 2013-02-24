@@ -105,11 +105,12 @@ module Rmega
       aes_key = ul_key[0..3]
       nonce = ul_key[4..5]
       local_file = File.open local_path, 'rb'
-      completion_file_handle = nil
+      file_handle = nil
       file_mac = [0, 0, 0, 0]
 
+      Utils.show_progress :upload, filesize
+
       self.class.chunks(filesize).each do |chunk_start, chunk_size|
-        logger.info "#{chunk_start} => #{chunk_size}"
         buffer = local_file.read chunk_size
 
         # TODO: should be (chunk_start/0x1000000000) >>> 0, (chunk_start/0x10) >>> 0
@@ -117,14 +118,13 @@ module Rmega
 
         encrypted_buffer = Crypto::AesCtr.encrypt aes_key, nonce, buffer
         chunk_mac = encrypted_buffer[:mac]
-        logger.info "chunk_mac = #{chunk_mac.inspect}"
 
-        completion_file_handle = upload_chunk upld_url, chunk_start, encrypted_buffer[:data]
+        file_handle = upload_chunk upld_url, chunk_start, encrypted_buffer[:data]
 
-        logger.info "completion_file_handle = #{completion_file_handle.inspect}"
-
-        file_mac = [file_mac[0] ^ chunk_mac[0], file_mac[1] ^ chunk_mac[1], file_mac[2] ^ chunk_mac[2], file_mac[3] ^ chunk_mac[3]]
+        file_mac = [file_mac[0] ^ chunk_mac[0], file_mac[1] ^ chunk_mac[1],
+                    file_mac[2] ^ chunk_mac[2], file_mac[3] ^ chunk_mac[3]]
         file_mac = Crypto::Aes.encrypt ul_key[0..3], file_mac
+        Utils.show_progress :upload, filesize, chunk_size
       end
 
       attribs = {n: File.basename(local_path)}
@@ -132,15 +132,11 @@ module Rmega
 
       meta_mac = [file_mac[0] ^ file_mac[1], file_mac[2] ^ file_mac[3]]
 
-      logger.info "meta_mac = #{meta_mac.inspect}"
-
-      key = [ul_key[0] ^ ul_key[4], ul_key[1] ^ ul_key[5], ul_key[2] ^ meta_mac[0], ul_key[3] ^ meta_mac[1],
-             ul_key[4], ul_key[5], meta_mac[0], meta_mac[1]]
-
-      logger.info "file_key = #{key.inspect}"
+      key = [ul_key[0] ^ ul_key[4], ul_key[1] ^ ul_key[5], ul_key[2] ^ meta_mac[0],
+             ul_key[3] ^ meta_mac[1], ul_key[4], ul_key[5], meta_mac[0], meta_mac[1]]
 
       encrypted_key = Utils.a32_to_base64 Crypto.encrypt_key(session.master_key, key)
-      session.request a: 'p', t: parent_node.handle, n: [{h: completion_file_handle, t: 0, a: encrypt_attribs, k: encrypted_key}]
+      session.request a: 'p', t: parent_node.handle, n: [{h: file_handle, t: 0, a: encrypt_attribs, k: encrypted_key}]
 
       nil
     ensure

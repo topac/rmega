@@ -2,6 +2,16 @@ module Rmega
   module Utils
     extend self
 
+    def show_progress direction, total, increment = 0
+      return unless Rmega.options.show_progress
+      @progressbar_progress = (@progressbar_progress || 0) + increment
+      format = "#{direction.to_s.capitalize} in progress #{Utils.format_bytes(@progressbar_progress)} of #{Utils.format_bytes(total)} | %P% | %e        "
+      @progressbar ||= ProgressBar.create format: format, total: total
+      @progressbar.reset if increment.zero?
+      @progressbar.format format
+      @progressbar.progress += increment
+    end
+
     def format_bytes bytes, round = 2
       units = ['bytes', 'kb', 'MB', 'GB', 'TB', 'PB']
       e = (bytes == 0 ? 0 : Math.log(bytes)) / Math.log(1024)
