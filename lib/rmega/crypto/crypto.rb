@@ -54,7 +54,8 @@ module Rmega
       return Aes.encrypt(key, data) if data.size == 4
       x = []
       (0..data.size).step(4) do |i|
-        cdata = [data[i] || 0, data[i+1] || 0, data[i+2] || 0, data[i+3] || 0]
+        # cdata = [data[i] || 0, data[i+1] || 0, data[i+2] || 0, data[i+3] || 0]
+        cdata = [data[i] || 0, data[i+1] || 0, data[i+2], data[i+3]].compact
         x.concat Crypto::Aes.encrypt(key, cdata)
       end
       x
