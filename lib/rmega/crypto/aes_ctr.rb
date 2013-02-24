@@ -72,12 +72,12 @@ module Rmega
 
         if i < ab32.size
           v = [0, 0, 0, 0]
-          (i..a32.size).step(1) { |j| v[j-i] = ab32[j] }
+          (i..ab32.size).step(1) { |j| v[j - i] = ab32[j] || 0 }
           4.times { |x| mac[x] = mac[x] ^ v[x] }
           mac = Aes.encrypt key, mac
           enc = Aes.encrypt key, ctr
           4.times { |x| v[x] = v[x] ^ enc[x] }
-          (i..ab32.size).step(1) { |x| ab32[j] = v[j-i] }
+          (i..ab32.size).step(1) { |j| ab32[j] = v[j - i] || 0 }
         end
 
         decrypted_data = Utils.a32_to_str ab32, data.size
