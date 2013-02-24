@@ -16,6 +16,26 @@ module Rmega
       pkey
     end
 
+    def encrypt_attributes key, attributes_hash
+      a32key = key.dup
+      if a32key.size > 4
+        a32key = [a32key[0] ^ a32key[4], a32key[1] ^ a32key[5], a32key[2] ^ a32key[6], a32key[3] ^ a32key[7]]
+      end
+      attributes_str = "MEGA#{attributes_hash.to_json}"
+      attributes_str << ("\x00" * (16 - (attributes_str.size % 16)))
+      Crypto::Aes.encrypt a32key, Utils.str_to_a32(attributes_str)
+    end
+
+    def decrypt_attributes key, attributes_base64
+      a32key = key.dup
+      if a32key.size > 4
+        a32key = [a32key[0] ^ a32key[4], a32key[1] ^ a32key[5], a32key[2] ^ a32key[6], a32key[3] ^ a32key[7]]
+      end
+      attributes = Crypto::Aes.decrypt a32key, Utils.base64_to_a32(attributes_base64)
+      attributes = Utils.a32_to_str attributes
+      JSON.parse attributes.gsub(/^MEGA/, '').rstrip
+    end
+
     def prepare_key_pw password_str
       prepare_key Utils.str_to_a32(password_str)
     end
@@ -30,14 +50,22 @@ module Rmega
       Utils::a32_to_base64 [h32[0],h32[2]]
     end
 
-    def decrypt_key key, data
-      return Aes.decrypt(key, data) if data.size == 4
-
+    def encrypt_key key, data
+      return Aes.encrypt(key, data) if data.size == 4
       x = []
-
       (0..data.size).step(4) do |i|
         cdata = [data[i] || 0, data[i+1] || 0, data[i+2] || 0, data[i+3] || 0]
-        x.concat Rmega::Crypto::Aes.decrypt(key, cdata)
+        x.concat Crypto::Aes.encrypt(key, cdata)
+      end
+      x
+    end
+
+    def decrypt_key key, data
+      return Aes.decrypt(key, data) if data.size == 4
+      x = []
+      (0..data.size).step(4) do |i|
+        cdata = [data[i] || 0, data[i+1] || 0, data[i+2] || 0, data[i+3] || 0]
+        x.concat Crypto::Aes.decrypt(key, cdata)
       end
       x
     end
