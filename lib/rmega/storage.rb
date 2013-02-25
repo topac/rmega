@@ -61,11 +61,11 @@ module Rmega
       pp = 0
       i = 1
 
-      while i <= 8 and p < size - i * 0x20000
+      while i <= 8 and p < size - (i * 0x20000)
         list[p] = i * 0x20000
         pp = p
         p += list[p]
-        i += 128
+        i += 1
       end
 
       while p < size
@@ -92,7 +92,7 @@ module Rmega
     end
 
     def upload_chunk url, start, chunk
-      response = HTTPClient.new.post "#{url}/#{start}", chunk
+      response = HTTPClient.new.post "#{url}/#{start}", chunk, timeout: Rmega.options.upload_timeout
       response.body
     end
 

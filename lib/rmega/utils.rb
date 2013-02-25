@@ -4,7 +4,8 @@ module Rmega
 
     def show_progress direction, total, increment = 0
       return unless Rmega.options.show_progress
-      @progressbar_progress = (@progressbar_progress || 0) + increment
+      @progressbar_progress = 0 if increment.zero?
+      @progressbar_progress += increment
       format = "#{direction.to_s.capitalize} in progress #{Utils.format_bytes(@progressbar_progress)} of #{Utils.format_bytes(total)} | %P% | %e        "
       @progressbar ||= ProgressBar.create format: format, total: total
       @progressbar.reset if increment.zero?
@@ -30,7 +31,7 @@ module Rmega
         b = []
         len.times do |i|
           # TODO: should be ((a32[i>>2] >>> (24-(i & 3)*8)) & 255)
-          b << ((a32[i>>2] >> (24-(i & 3)*8)) & 255)
+          b << (((a32[i>>2] || 0) >> (24-(i & 3)*8)) & 255)
         end
         b.pack 'C*'
       else
