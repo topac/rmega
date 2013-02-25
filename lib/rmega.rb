@@ -35,10 +35,16 @@ module Rmega
     session.storage
   end
 
+  def self.default_options
+    {
+      show_progress:        true,
+      upload_timeout:       120,
+      api_request_timeout:  20,
+      api_url:              'https://eu.api.mega.co.nz/cs'
+    }
+  end
+
   def self.options
-    @options ||= begin
-      defaults = {show_progress: true, upload_timeout: 120}
-      OpenStruct.new defaults
-    end
+    @options ||= OpenStruct.new default_options
   end
 end
