@@ -8,6 +8,7 @@ For ruby 1.9.3+
 </div>
 
 
+
 ## Usage
 
 ```ruby
@@ -40,6 +41,9 @@ storage.download 'https://mega.co.nz/#!cER0GYbD!ZCHruEzLghAcEZuD44Dp0k--6m5duA08
 files   = storage.nodes_by_type :file
 folders = storage.nodes_by_type :dir
 
+# Upload a file (to the root node)
+storage.upload '~/Downloads/my_file.zip'
+
 ```
 
 
@@ -65,3 +69,11 @@ Or install it yourself as:
 3. Commit your changes (`git commit -am 'Added some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+
+## Copyright
+
+This work is the result of a reverse engineering of the Mega's Javascript code.
+
+Copyright (c) 2013 Daniele Molteni  
+MIT License
