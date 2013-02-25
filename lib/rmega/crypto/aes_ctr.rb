@@ -17,7 +17,7 @@ module Rmega
           enc = Aes.encrypt key, nonce
           4.times do |m|
             a32[i+m] = (a32[i+m] || 0) ^ (enc[m] || 0)
-            mac[m] = (mac[m] || 0) ^ a32[i+m]
+            mac[m] = (mac[m] || 0) ^ (a32[i+m] || 0)
           end
           mac = Aes.encrypt key, mac
           nonce[3] += 1
@@ -27,7 +27,7 @@ module Rmega
 
         if last_i < a32.size
           v = [0, 0, 0, 0]
-          (last_i..a32.size).step(1) { |m| v[m-last_i] = a32[m] || 0 }
+          (last_i..a32.size - 1).step(1) { |m| v[m-last_i] = a32[m] || 0 }
 
           enc = Aes.encrypt key, nonce
           4.times { |m| v[m] = v[m] ^ enc[m] }
@@ -39,12 +39,12 @@ module Rmega
 
           mac = Aes.encrypt key, mac
 
-          (last_i..a32.size).step(1) { |j| a32[j] = v[j - last_i] || 0 }
+          (last_i..a32.size - 1).step(1) { |j| a32[j] = v[j - last_i] || 0 }
         end
 
         decrypted_data = Utils.a32_to_str(a32, data.size)
 
-        {plain: decrypted_data, mac: mac}
+        {data: decrypted_data, mac: mac}
       end
 
       def encrypt key, nonce, data
@@ -62,7 +62,7 @@ module Rmega
           4.times { |x| mac[x] = mac[x] ^ (ab32[i+x] || 0) }
           mac = Aes.encrypt key, mac
           enc = Aes.encrypt key, ctr
-          4.times { |x|  ab32[i+x] = ab32[i+x] ^ enc[x] }
+          4.times { |x|  ab32[i+x] = (ab32[i+x] || 0) ^ (enc[x] || 0) }
           ctr[3] += 1
           ctr[2] += 1 if ctr[3].zero?
           last_i = i + 4
@@ -72,12 +72,12 @@ module Rmega
 
         if i < ab32.size
           v = [0, 0, 0, 0]
-          (i..ab32.size).step(1) { |j| v[j - i] = ab32[j] || 0 }
+          (i..ab32.size - 1).step(1) { |j| v[j - i] = ab32[j] || 0 }
           4.times { |x| mac[x] = mac[x] ^ v[x] }
           mac = Aes.encrypt key, mac
           enc = Aes.encrypt key, ctr
           4.times { |x| v[x] = v[x] ^ enc[x] }
-          (i..ab32.size).step(1) { |j| ab32[j] = v[j - i] || 0 }
+          (i..ab32.size - 1).step(1) { |j| ab32[j] = v[j - i] || 0 }
         end
 
         decrypted_data = Utils.a32_to_str ab32, data.size
