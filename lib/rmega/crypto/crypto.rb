@@ -16,6 +16,26 @@ module Rmega
       pkey
     end
 
+    def decrypt_sid key, csid, privk
+      # if csid ...
+      t = Utils.mpi2b Utils.base64urldecode(csid)
+      privk = Utils.a32_to_str decrypt_key(key, Utils.base64_to_a32(privk))
+      rsa_privk = Array.new 4
+      # else if tsid (todo)
+
+      # Decompose private key
+      4.times do |i|
+        l = ((privk[0].ord * 256 + privk[1].ord + 7) >> 3) + 2
+        rsa_privk[i] = Utils.mpi2b privk[0..l-1]
+        privk = privk[l..-1]
+      end
+
+      # TODO - remove execjs and build the key using the ruby lib
+      # rsa_key = Crypto::Rsa.build_rsa_key rsa_privk
+      decrypted_t = Rsa.decrypt t, rsa_privk
+      Utils.base64urlencode Utils.b2s(decrypted_t)[0..42]
+    end
+
     def encrypt_attributes key, attributes_hash
       a32key = key.dup
       if a32key.size > 4
