@@ -37,7 +37,7 @@ module Rmega
 
   def self.options
     @options ||= begin
-      defaults = {show_progress: true}
+      defaults = {show_progress: true, upload_timeout: 120}
       OpenStruct.new defaults
     end
   end
