@@ -9,6 +9,10 @@ module Rmega
       login password_str
     end
 
+    def debug message
+      Rmega.logger.debug message
+    end
+
 
     # Delegate to Rmega.options
 
@@ -37,7 +41,6 @@ module Rmega
     def login password_str
       uh = Crypto.stringhash Crypto.prepare_key_pw(password_str), email
       resp = request a: 'us', user: email, uh: uh
-      raise "Error code received: #{resp}" if error_response?(resp)
 
       # Decrypt the master key
       encrypted_key = Crypto.prepare_key_pw password_str
@@ -49,7 +52,6 @@ module Rmega
 
 
     # Api requests methods
-
 
     def random_request_id
       rand(1E7..1E9).to_i
@@ -64,12 +66,13 @@ module Rmega
       self.request_id += 1
       url = "#{api_url}?id=#{request_id}"
       url << "&sid=#{sid}" if sid
-      Rmega.logger.debug "POST #{url}"
-      Rmega.logger.debug "#{body.inspect}"
+      debug "POST #{url}"
+      debug "#{body.inspect}"
       response = HTTPClient.new.post url, [body].to_json, timeout: api_request_timeout
-      Rmega.logger.debug "#{response.code}"
-      Rmega.logger.debug "#{response.body}"
-      JSON.parse(response.body).first
+      debug "#{response.code}\n#{response.body}"
+      resp = JSON.parse(response.body).first
+      raise "Error code received: #{resp}" if error_response?(resp)
+      resp
     end
   end
 end
