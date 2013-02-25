@@ -116,7 +116,7 @@ module Rmega
         # TODO: should be (chunk_start/0x1000000000) >>> 0, (chunk_start/0x10) >>> 0
         nonce = [nonce[0], nonce[1], (chunk_start/0x1000000000) >> 0, (chunk_start/0x10) >> 0]
         decryption_result = Crypto::AesCtr.decrypt(k, nonce, buffer)
-        file.write(decryption_result[:plain])
+        file.write(decryption_result[:data])
         Utils.show_progress :download, filesize, chunk_size
       end
 

@@ -1,7 +1,7 @@
 # Rmega
 
 Ruby library for the Mega.co.nz API.  
-For ruby 1.9.3+
+Tested using ruby 1.9.3+ (OpenSSL 0.9.8r+)
 
 <div style="background-color: #000000; border-radius: 8px">
   <img src="https://eu.static.mega.co.nz/images/mega/logo.png" />
@@ -20,6 +20,19 @@ nodes = storage.nodes
 # Find all nodes which name match a regexp
 nodes = storage.nodes_by_name /my.document/i
 
+# Download a file
+my_node.download '~/Download' # The name of the node is used
+my_node.download '~/Download/mydocument_42.zip' # Specify a new name
+
+# Download a file using a given url
+storage.download 'https://mega.co.nz/#!cER0GYbD!ZCHruEzLghAcEZuD44Dp0k--6m5duA08Xl4a_bUZYMI', '~/Download'
+
+# Upload a file (to the root node)
+storage.upload '~/Downloads/my_file.zip'
+
+# Upload a file to a specific folder
+storage.upload '~/Downloads/my_file.zip', folder_node
+
 # Trash a node
 my_node.trash
 
@@ -29,20 +42,10 @@ my_node.public_url
 # See the attributes of a node
 my_node.attributes
 
-# Download a file
-my_node.download '~/Download' # The name of the node is used
-my_node.download '~/Download/mydocument_42.zip' # Specify a new name
-
-# Download a file using a given url
-storage.download 'https://mega.co.nz/#!cER0GYbD!ZCHruEzLghAcEZuD44Dp0k--6m5duA08Xl4a_bUZYMI', '~/Download'
-
 # Find all nodes of certain type
 # types are: file, dir, root, inbox, trash
 files   = storage.nodes_by_type :file
 folders = storage.nodes_by_type :dir
-
-# Upload a file (to the root node)
-storage.upload '~/Downloads/my_file.zip'
 
 ```
 
