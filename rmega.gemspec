@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["topac@users.noreply.github.com"]
   gem.description   = %q{mega.co.nz ruby api}
   gem.summary       = %q{mega.co.nz ruby api}
-  gem.homepage      = ""
+  gem.homepage      = "https://github.com/topac/rmega"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
