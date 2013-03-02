@@ -23,7 +23,7 @@ describe Rmega::Utils do
   end
 
   describe '#format_bytes' do
-    it 'converts the correct unit' do
+    it 'converts to the correct unit' do
       described_class.format_bytes(1024, 2).should == '1.0kb'
       described_class.format_bytes(1024**2).should == '1.0MB'
     end
