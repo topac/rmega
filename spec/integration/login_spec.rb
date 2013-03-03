@@ -12,7 +12,7 @@ describe 'Login process' do
 
     context 'when email and password are invalid' do
       it 'raises an error' do
-        lambda { Rmega.login 'email', 'pass' }.should raise_error
+        lambda { Rmega.login 'a@apple.com', 'b' }.should raise_error(Rmega::ApiRequestError)
       end
     end
   end
