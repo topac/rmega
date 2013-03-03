@@ -19,6 +19,7 @@ require "rmega/crypto/crypto"
 require "rmega/storage"
 require "rmega/node"
 require "rmega/session"
+require "rmega/api_request_error"
 
 module Rmega
   def self.logger

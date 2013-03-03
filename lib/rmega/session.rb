@@ -57,11 +57,6 @@ module Rmega
       rand(1E7..1E9).to_i
     end
 
-    def error_response? response
-      response = response.first if response.respond_to? :first
-      !!Integer(response) rescue false
-    end
-
     def request body
       self.request_id += 1
       url = "#{api_url}?id=#{request_id}"
@@ -71,7 +66,7 @@ module Rmega
       response = HTTPClient.new.post url, [body].to_json, timeout: api_request_timeout
       debug "#{response.code}\n#{response.body}"
       resp = JSON.parse(response.body).first
-      raise "Error code received: #{resp}" if error_response?(resp)
+      raise ApiRequestError.new(resp) if ApiRequestError.is_error_code?(resp)
       resp
     end
   end
