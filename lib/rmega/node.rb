@@ -9,8 +9,8 @@ module Rmega
 
     def self.initialize_by_public_url session, public_url
       public_handle, key = public_url.split('!')[1, 2]
-      data = session.request a: 'g', g: 1, p: public_handle
-      node = new session, data
+
+      node = new session, public_data(session, public_handle)
       node.instance_variable_set '@public_url', public_url
       node
     end
@@ -36,6 +36,10 @@ module Rmega
 
 
     # Other methods
+
+    def self.public_data session, public_handle
+      session.request a: 'g', g: 1, p: public_handle
+    end
 
     def public_handle
       @public_handle ||= session.request(a: 'l', n: handle)
