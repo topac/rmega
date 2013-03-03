@@ -15,5 +15,12 @@ spec/reports
 test/tmp
 test/version_tmp
 tmp
+
+# OSX specific file
 .DS_Store
+
+# RVM
 .rvmrc
+
+# Required to run integration specs
+spec/integration/rmega_account.yml
