@@ -31,7 +31,7 @@ module Rmega
 
     def nodes
       nodes = session.request a: 'f', c: 1
-      nodes['f'].map { |node_data| Node.new(session, node_data) }
+      nodes['f'].map { |node_data| Node.fabricate(session, node_data) }
     end
 
     def nodes_by_type type

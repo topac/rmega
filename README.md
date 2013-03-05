@@ -46,7 +46,7 @@ my_node.attributes
 # Find all nodes of certain type
 # types are: file, dir, root, inbox, trash
 files   = storage.nodes_by_type :file
-folders = storage.nodes_by_type :dir
+folders = storage.nodes_by_type :folder
 
 ```
 
