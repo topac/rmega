@@ -7,6 +7,13 @@ module Rmega
       @data = data
     end
 
+    def self.fabricate session, data
+      type_name = type_by_number(data['t']).to_s
+      node_class = Rmega.const_get("#{type_name}_node".camelize) rescue nil
+      node_class ||= Rmega::Node
+      node_class.new session, data
+    end
+
     def self.initialize_by_public_url session, public_url
       public_handle, key = public_url.split('!')[1, 2]
 
@@ -16,7 +23,12 @@ module Rmega
     end
 
     def self.types
-      {file: 0, dir: 1, root: 2, inbox: 3, trash: 4}
+      {file: 0, folder: 1, root: 2, inbox: 3, trash: 4}
+    end
+
+    def self.type_by_number number
+      founded_type = types.find { |k, v| number == v }
+      founded_type.first if founded_type
     end
 
 
@@ -30,23 +42,32 @@ module Rmega
     end
 
     def trash
-      trash_node_public_handle = session.storage.trash_node.public_handle
-      session.request a: 'm', n: handle, t: trash_node_public_handle
+      trash_node_public_handle = storage.trash_node.public_handle
+      request a: 'm', n: handle, t: trash_node_public_handle
     end
+
+
+    # Delegate to session
+
+    delegate :storage, :request, :to => :session
 
 
     # Other methods
 
     def self.public_data session, public_handle
-      session.request a: 'g', g: 1, p: public_handle
+      request a: 'g', g: 1, p: public_handle
     end
 
     def public_handle
-      @public_handle ||= session.request(a: 'l', n: handle)
+      @public_handle ||= request(a: 'l', n: handle)
     end
 
     def handle
       data['h']
+    end
+
+    def parent_handle
+      data['p']
     end
 
     def filesize
@@ -85,48 +106,11 @@ module Rmega
     end
 
     def type
-      founded_type = self.class.types.find { |k, v| data['t'] == v }
-      founded_type.first if founded_type
+      self.class.type_by_number data['t']
     end
 
     def delete
-      session.request a: 'd', n: handle
-    end
-
-    def storage_url
-      @storage_url ||= data['g'] || session.request(a: 'g', g: 1, n: handle)['g']
-    end
-
-    def chunks
-      Storage.chunks filesize
-    end
-
-    def download path
-      path = File.expand_path path
-      path = Dir.exists?(path) ? File.join(path, name) : path
-
-      Utils.show_progress :download, filesize
-
-      k = decrypted_file_key
-      k = [k[0] ^ k[4], k[1] ^ k[5], k[2] ^ k[6], k[3] ^ k[7]]
-      nonce = decrypted_file_key[4..5]
-
-      file = File.open path, 'wb'
-      connection = HTTPClient.new.get_async storage_url
-      message = connection.pop
-
-      chunks.each do |chunk_start, chunk_size|
-        buffer = message.content.read chunk_size
-        # TODO: should be (chunk_start/0x1000000000) >>> 0, (chunk_start/0x10) >>> 0
-        nonce = [nonce[0], nonce[1], (chunk_start/0x1000000000) >> 0, (chunk_start/0x10) >> 0]
-        decryption_result = Crypto::AesCtr.decrypt(k, nonce, buffer)
-        file.write(decryption_result[:data])
-        Utils.show_progress :download, filesize, chunk_size
-      end
-
-      nil
-    ensure
-      file.close if file
+      request a: 'd', n: handle
     end
   end
 end

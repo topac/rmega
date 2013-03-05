@@ -5,6 +5,8 @@ require "logger"
 require "ostruct"
 
 # Gems in the bundle
+require 'active_support/core_ext/module/delegation'
+require 'active_support/core_ext/string/inflections'
 require "httpclient"
 require "execjs"
 require "ruby-progressbar"
@@ -17,7 +19,9 @@ require "rmega/crypto/aes"
 require "rmega/crypto/aes_ctr"
 require "rmega/crypto/crypto"
 require "rmega/storage"
-require "rmega/node"
+require "rmega/nodes/node"
+require "rmega/nodes/file_node"
+require "rmega/nodes/folder_node"
 require "rmega/session"
 require "rmega/api_request_error"
 
