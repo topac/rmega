@@ -1,11 +1,10 @@
-# encoding: utf-8
 require 'integration_spec_helper'
 
 describe 'Login process' do
   if account_file_exists?
     context 'when email and password are correct' do
       it 'returns a valid object' do
-        object = Rmega.login valid_account['email'], valid_account['password']
+        object = storage
         object.should respond_to :nodes
       end
     end

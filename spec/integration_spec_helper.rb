@@ -10,6 +10,10 @@ def account_file_exists?
   File.exists? account_file_path
 end
 
-def valid_account
-  @valid_account ||= YAML.load_file account_file_path
+def account
+  @account ||= YAML.load_file account_file_path
+end
+
+def storage
+  Rmega.login account['email'], account['password']
 end
