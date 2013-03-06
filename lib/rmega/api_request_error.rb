@@ -9,7 +9,7 @@ module Rmega
     end
 
     def self.is_error_code? number
-      !!Integer(number) rescue false
+      (Integer(number) && number.to_i < 0) rescue false
     end
 
     def self.all_messages
