@@ -5,7 +5,7 @@ describe 'Folders operations' do
     @session = storage.session
     @parent_node = @session.storage.root_node
     @folder_name = "test_folder_#{rand.denominator}_#{rand.denominator}"
-    @folder_node = Rmega::FolderNode.create @session, @parent_node, @folder_name
+    @folder_node = @session.storage.create_folder @parent_node, @folder_name
   end
 
   it 'creates a new folder' do

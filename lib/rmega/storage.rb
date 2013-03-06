@@ -52,6 +52,10 @@ module Rmega
       @root_node ||= nodes_by_type(:root).first
     end
 
+    def create_folder parent_node, folder_name
+      FolderNode.create session, parent_node, folder_name
+    end
+
 
     # Handle node download
 
