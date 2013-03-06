@@ -12,29 +12,53 @@ Tested using ruby 1.9.3+ (OpenSSL 0.9.8r+)
 
 ## Usage
 
+    $ gem install rmega
+    $ irb -r rmega
+
+### Login and retrive all the files and folders
+
 ```ruby
 storage = Rmega.login 'your_email', 'your_password'
 
 # Fetch all the nodes (files, folders, ecc.)
 nodes = storage.nodes
+```
 
-# Find all nodes which name match a regexp
-nodes = storage.nodes_by_name /my.document/i
 
-# Download a file
-my_node.download '~/Download' # The name of the node is used
-my_node.download '~/Download/mydocument_42.zip' # Specify a new name
+### Download a file or a folder
 
-# Download a file using a given url
-storage.download 'https://mega.co.nz/#!cER0GYbD!ZCHruEzLghAcEZuD44Dp0k--6m5duA08Xl4a_bUZYMI', '~/Download'
+```ruby
+file = storage.nodes_by_name(/document1/i).first
+file.name # => "MyDocument1.pdf"
+file.download '~/Downloads'
 
-# Upload a file (to the root node)
+folder = storage.nodes_by_name(/photos/i).first
+folder.download '~/Downloads/MyAlbums'
+```
+
+
+### Download a file using a public url
+
+```ruby
+storage.download 'https://mega.co.nz/#!cER0GYbD!ZCHruEA08Xl4a_bUZYMI', '~/Downloads'
+```
+
+
+### Upload a file
+
+```ruby
+# Upload a file (to the root folder)
 storage.upload '~/Downloads/my_file.zip'
 
 # Upload a file to a specific folder
-storage.upload '~/Downloads/my_file.zip', folder_node
+document_folder = storage.nodes_by_name(/photos/i).first
+storage.upload '~/Downloads/my_file.zip', document_folder
+```
 
-# Trash a node
+### Other operations
+
+```ruby
+# Trash a file or a folder
 my_node.trash
 
 # Gets the public url (the sharable one) of a file
@@ -42,12 +66,6 @@ my_node.public_url
 
 # See the attributes of a node
 my_node.attributes
-
-# Find all nodes of certain type
-# types are: file, dir, root, inbox, trash
-files   = storage.nodes_by_type :file
-folders = storage.nodes_by_type :folder
-
 ```
 
 
