@@ -12,6 +12,8 @@ module Rmega
       path = File.expand_path path
       path = Dir.exists?(path) ? File.join(path, name) : path
 
+      logger.info "Starting download into #{path}"
+
       Utils.show_progress :download, filesize
 
       k = decrypted_file_key
