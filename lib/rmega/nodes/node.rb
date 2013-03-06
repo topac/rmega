@@ -31,6 +31,9 @@ module Rmega
       founded_type.first if founded_type
     end
 
+    def logger
+      Rmega.logger
+    end
 
     # Member actions
 

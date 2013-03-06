@@ -13,9 +13,17 @@ module Rmega
       storage.nodes.select { |node| node.parent_handle == handle }
     end
 
-    # TODO - download each child
-    # def download
-    #   children.each { |node| node.download }
-    # end
+    def download path
+      children.each do |node|
+        if node.type == :file
+          node.download path
+        elsif node.type == :folder
+          subfolder = File.expand_path File.join(path, node.name)
+          Dir.mkdir(subfolder) unless Dir.exists?(subfolder)
+          node.download subfolder
+        end
+      end
+      nil
+    end
   end
 end
