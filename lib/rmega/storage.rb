@@ -27,7 +27,7 @@ module Rmega
     end
 
 
-    # Nodes finders
+    # Nodes management
 
     def nodes
       nodes = session.request a: 'f', c: 1
@@ -101,7 +101,7 @@ module Rmega
       filesize = File.size local_path
       upld_url = upload_url filesize
 
-      ul_key = Array.new(6).map { rand(0..0xFFFFFFFF) }
+      ul_key = Crypto.random_key
       aes_key = ul_key[0..3]
       nonce = ul_key[4..5]
       local_file = File.open local_path, 'rb'
