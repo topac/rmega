@@ -30,7 +30,7 @@ module Rmega
     @logger ||= begin
       logger = Logger.new $stdout
       logger.formatter = Proc.new { | severity, time, progname, msg| "#{msg}\n" }
-      logger.level = Logger::INFO
+      logger.level = Logger::ERROR
       logger
     end
   end
