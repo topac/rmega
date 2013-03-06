@@ -9,8 +9,8 @@ module Rmega
       login password_str
     end
 
-    def debug message
-      Rmega.logger.debug message
+    def logger
+      Rmega.logger
     end
 
 
@@ -61,10 +61,10 @@ module Rmega
       self.request_id += 1
       url = "#{api_url}?id=#{request_id}"
       url << "&sid=#{sid}" if sid
-      debug "POST #{url}"
-      debug "#{body.inspect}"
+      logger.info "POST #{url}"
+      logger.info "#{body.inspect}"
       response = HTTPClient.new.post url, [body].to_json, timeout: api_request_timeout
-      debug "#{response.code}\n#{response.body}"
+      logger.debug "#{response.code}\n#{response.body}"
       resp = JSON.parse(response.body).first
       raise ApiRequestError.new(resp) if ApiRequestError.is_error_code?(resp)
       resp
