@@ -66,6 +66,10 @@ my_node.public_url
 
 # See the attributes of a node
 my_node.attributes
+
+# Create a folder
+parent_folder = storage.nodes_by_name(/photos/i).first
+folder_node = storage.create_folder parent_folder, "london"
 ```
 
 
