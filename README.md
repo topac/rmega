@@ -4,10 +4,12 @@
 Ruby library for the Mega.co.nz API.  
 Tested using ruby 1.9.3+ (OpenSSL 0.9.8r+)
 
+This work is the result of a reverse engineering of the Mega's Javascript code.
+
+
 <div style="background-color: #000000; border-radius: 8px">
   <img src="https://eu.static.mega.co.nz/images/mega/logo.png" />
 </div>
-
 
 
 ## Usage
@@ -72,6 +74,10 @@ parent_folder = storage.nodes_by_name(/photos/i).first
 folder_node = storage.create_folder parent_folder, "london"
 ```
 
+## Todo
+
+  * Handle connection errors during upload/download
+
 
 ## Installation
 
@@ -98,8 +104,6 @@ Or install it yourself as:
 
 
 ## Copyright
-
-This work is the result of a reverse engineering of the Mega's Javascript code.
 
 Copyright (c) 2013 topac  
 MIT License
