@@ -4,22 +4,20 @@ module Rmega
 
     def initialize session, data
       @session = session
-      @data = data
+
+      if self.class.mega_url?(data)
+        @data = self.class.public_data(session, data)
+        @public_url = data
+      else
+        @data = data
+      end
     end
 
     def self.fabricate session, data
-      type_name = type_by_number(data['t']).to_s
+      type_name = mega_url?(data) ? :file : type_by_number(data['t'])
       node_class = Rmega.const_get("#{type_name}_node".camelize) rescue nil
       node_class ||= Rmega::Node
       node_class.new session, data
-    end
-
-    def self.initialize_by_public_url session, public_url
-      public_handle, key = public_url.split('!')[1, 2]
-
-      node = new session, public_data(session, public_handle)
-      node.instance_variable_set '@public_url', public_url
-      node
     end
 
     def self.types
@@ -29,6 +27,10 @@ module Rmega
     def self.type_by_number number
       founded_type = types.find { |k, v| number == v }
       founded_type.first if founded_type
+    end
+
+    def self.mega_url? url
+      !!(url.to_s =~ /^https:\/\/mega\.co\.nz\/#!.*$/i)
     end
 
     def logger
@@ -57,8 +59,9 @@ module Rmega
 
     # Other methods
 
-    def self.public_data session, public_handle
-      request a: 'g', g: 1, p: public_handle
+    def self.public_data session, public_url
+      public_handle, key = public_url.strip.split('!')[1, 2]
+      session.request a: 'g', g: 1, p: public_handle
     end
 
     def public_handle
