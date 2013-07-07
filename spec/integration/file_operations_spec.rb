@@ -18,7 +18,7 @@ describe 'File operations' do
       it 'downloads the related file' do
         storage.download(url, temp_folder)
         related_file = File.join(temp_folder, 'testfile.txt')
-        expect(File.read(created_file)).to eq "helloworld!\n"
+        expect(File.read(related_file)).to eq "helloworld!\n"
       end
     end
   end
