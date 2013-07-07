@@ -11,6 +11,9 @@ require "httpclient"
 require "execjs"
 require "ruby-progressbar"
 
+# Stdlib extensions
+require "rmega/extensions/thread/pool"
+
 # Require all the other files
 require "rmega/version"
 require "rmega/utils"
