@@ -85,7 +85,7 @@ module Rmega
     end
 
     def download public_url, path
-      Node.initialize_by_public_url(session, public_url).download path
+      Node.fabricate(session, public_url).download(path)
     end
 
 
