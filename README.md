@@ -1,4 +1,4 @@
-# Rmega [![Build Status](https://travis-ci.org/topac/rmega.png)](https://travis-ci.org/topac/rmega)
+# Rmega
 
 
 Ruby library for the Mega.co.nz API.  
