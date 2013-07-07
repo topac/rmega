@@ -1,20 +1,16 @@
 # Rmega
 
-
-Ruby library for the Mega.co.nz API.  
-Tested using ruby 1.9.3+ (OpenSSL 0.9.8r+)
-
+A ruby library for the Mega.co.nz.  
+Tested using ruby 1.9.3+ (OpenSSL 0.9.8r+)  
 This work is the result of a reverse engineering of the Mega's Javascript code.
 
+## Installation
 
-<div style="background-color: #000000; border-radius: 8px">
-  <img src="https://eu.static.mega.co.nz/images/mega/logo.png" />
-</div>
-
+  Rmega is distributed via rubygems, so if you have ruby 1.9.3+ installed
+  system wide, just type `gem install rmega`.
 
 ## Usage
 
-    $ gem install rmega
     $ irb -r rmega
 
 ### Login and retrive all the files and folders
