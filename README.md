@@ -1,4 +1,4 @@
-# Rmega [![Build Status](https://travis-ci.org/daniele-m/rmega.png)](https://travis-ci.org/daniele-m/rmega)
+# Rmega
 
 
 Ruby library for the Mega.co.nz API.  
