@@ -4,7 +4,10 @@ module Rmega
 
     def show_progress direction, total, increment = 0
       return unless Rmega.options.show_progress
-      @progressbar_progress = 0 if increment.zero?
+      if increment.zero?
+        @progressbar = nil
+        @progressbar_progress = 0
+      end
       @progressbar_progress += increment
       format = "#{direction.to_s.capitalize} in progress #{Utils.format_bytes(@progressbar_progress)} of #{Utils.format_bytes(total)} | %P% | %e        "
       @progressbar ||= ProgressBar.create format: format, total: total

@@ -11,11 +11,9 @@ require "httpclient"
 require "execjs"
 require "ruby-progressbar"
 
-# Stdlib extensions
-require "rmega/extensions/thread/pool"
-
 # Require all the other files
 require "rmega/version"
+require "rmega/loggable"
 require "rmega/utils"
 require "rmega/crypto/rsa"
 require "rmega/crypto/aes"
@@ -27,6 +25,8 @@ require "rmega/nodes/file_node"
 require "rmega/nodes/folder_node"
 require "rmega/session"
 require "rmega/api_request_error"
+require "rmega/pool"
+require "rmega/downloader"
 
 module Rmega
   def self.logger
