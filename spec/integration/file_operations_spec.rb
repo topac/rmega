@@ -2,27 +2,47 @@ require 'integration_spec_helper'
 require 'fileutils'
 
 describe 'File operations' do
+
   if account_file_exists?
 
     let(:temp_folder) { "/tmp/.rmega_spec" }
 
     before { FileUtils.mkdir_p(temp_folder) }
 
-    # after { FileUtils.rm_rf(temp_folder) }
+    after { FileUtils.rm_rf(temp_folder) }
 
-    context 'give a public mega url' do
+    context 'give a public mega url, related to a small file' do
 
       # A file called testfile.txt containting the string "helloworld!"
-      # let(:url) { 'https://mega.co.nz/#!MAkg2Iab!bc9Y2U6d93IlRRKVYpcC9hLZjS4G278OPdH6nTFPDNQ' }
-      let(:url) { 'https://mega.co.nz/#!nZRBHTQI!foThMzZTyUrXUOaBrqLzIzmiM4dbvGDu33wcl8vlx-w' }
+      let(:url) { 'https://mega.co.nz/#!MAkg2Iab!bc9Y2U6d93IlRRKVYpcC9hLZjS4G278OPdH6nTFPDNQ' }
 
       it 'downloads the related file' do
-        t = Time.now
         storage.download(url, temp_folder)
-        puts "total = #{Time.now - t}"
         related_file = File.join(temp_folder, 'testfile.txt')
-        # expect(File.read(related_file)).to eq "helloworld!\n"
-        1.should == 1
+        expect(File.read(related_file)).to eq "helloworld!\n"
+      end
+    end
+
+    context 'give a public mega url, related to a big file' do
+
+      # A file called testfile_big_15mb.txt containting the word "topac" repeated 3145728 times (~ 15mb)
+      let(:url) { 'https://mega.co.nz/#!NYVkDaLD!BKyN5SRpOaEtGnTcwiAqcxmJc7p-k0IPWKAW-471KRE' }
+
+      it 'downloads the related file' do
+        storage.download(url, temp_folder)
+        related_file = File.join(temp_folder, 'testfile_big_15mb.txt')
+
+        expect(File.size(related_file)).to eql 15_728_640
+
+        count = 0
+        File.open(related_file, 'rb') do |f|
+          while (word = f.read(3840))
+            break if word != "topac"*768
+            count += 768
+          end
+        end
+
+        expect(count).to eql(15_728_640 / 5)
       end
     end
   end
