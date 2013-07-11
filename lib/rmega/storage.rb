@@ -1,16 +1,12 @@
 module Rmega
   class Storage
+    include Loggable
 
     attr_reader :session
 
     def initialize session
       @session = session
     end
-
-    def logger
-      Rmega.logger
-    end
-
 
     # Quota-related methods
 
@@ -30,61 +26,26 @@ module Rmega
     # Nodes management
 
     def nodes
-      nodes = session.request a: 'f', c: 1
-      nodes['f'].map { |node_data| Node.fabricate(session, node_data) }
+      result = session.request a: 'f', c: 1
+      result['f'].map { |node_data| Node.fabricate(session, node_data) }
     end
 
-    def nodes_by_type type
-      nodes.select { |n| n.type == type }
-    end
-
-    def nodes_by_name name_regexp
-      nodes.select do |node|
-        node.name and node.name =~ name_regexp
-      end
-    end
-
-    def trash_node
+    def trash
       @trash ||= nodes_by_type(:trash).first
     end
 
-    def root_node
+    def root
       @root_node ||= nodes_by_type(:root).first
     end
 
-    def create_folder parent_node, folder_name
+    def create_folder(parent_node, folder_name)
       FolderNode.create session, parent_node, folder_name
     end
 
 
     # Handle node download
 
-    def self.chunks size
-      list = {}
-      p = 0
-      pp = 0
-      i = 1
-
-      while i <= 8 and p < size - (i * 0x20000)
-        list[p] = i * 0x20000
-        pp = p
-        p += list[p]
-        i += 1
-      end
-
-      while p < size
-        list[p] = 0x100000
-        pp = p
-        p += list[p]
-      end
-
-      if size - pp > 0
-        list[pp] = size - pp
-      end
-      list
-    end
-
-    def download public_url, path
+    def download(public_url, path)
       Node.fabricate(session, public_url).download(path)
     end
 
@@ -114,7 +75,7 @@ module Rmega
 
       Utils.show_progress :upload, filesize
 
-      self.class.chunks(filesize).each do |chunk_start, chunk_size|
+      Utils.chunks(filesize).each do |chunk_start, chunk_size|
         buffer = local_file.read chunk_size
 
         # TODO: should be (chunk_start/0x1000000000) >>> 0, (chunk_start/0x10) >>> 0

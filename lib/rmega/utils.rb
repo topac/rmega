@@ -196,5 +196,30 @@ module Rmega
 
       rr
     end
+
+    def chunks(size)
+      list = {}
+      p = 0
+      pp = 0
+      i = 1
+
+      while i <= 8 and p < size - (i * 0x20000)
+        list[p] = i * 0x20000
+        pp = p
+        p += list[p]
+        i += 1
+      end
+
+      while p < size
+        list[p] = 0x100000
+        pp = p
+        p += list[p]
+      end
+
+      if size - pp > 0
+        list[pp] = size - pp
+      end
+      list
+    end
   end
 end
