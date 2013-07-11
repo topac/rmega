@@ -42,7 +42,7 @@ module Rmega
     end
 
     def chunks
-      Storage.chunks(filesize)
+      Utils.chunks(filesize)
     end
 
     # TODO: checksum check

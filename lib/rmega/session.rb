@@ -1,5 +1,7 @@
 module Rmega
   class Session
+    include Loggable
+
     attr_accessor :email, :request_id, :sid, :master_key
 
     def initialize email, password_str
@@ -8,11 +10,6 @@ module Rmega
 
       login password_str
     end
-
-    def logger
-      Rmega.logger
-    end
-
 
     # Delegate to Rmega.options
 

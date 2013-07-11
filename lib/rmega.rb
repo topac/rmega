@@ -20,24 +20,13 @@ require "rmega/crypto/aes"
 require "rmega/crypto/aes_ctr"
 require "rmega/crypto/crypto"
 require "rmega/storage"
-require "rmega/nodes/node"
-require "rmega/nodes/file_node"
-require "rmega/nodes/folder_node"
+require "rmega/node/node"
 require "rmega/session"
 require "rmega/api_request_error"
 require "rmega/pool"
 require "rmega/downloader"
 
 module Rmega
-  def self.logger
-    @logger ||= begin
-      logger = Logger.new $stdout
-      logger.formatter = Proc.new { | severity, time, progname, msg| "#{msg}\n" }
-      logger.level = Logger::ERROR
-      logger
-    end
-  end
-
   def self.login email, password
     session = Session.new email, password
     session.storage
