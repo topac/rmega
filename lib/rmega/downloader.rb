@@ -58,7 +58,7 @@ module Rmega
       chunks.each do |start, size|
         pool.defer do
           buffer = download_chunk(start, size)
-          buffer = yield(start, buffer) if block_given?
+          buffer = yield(start, buffer)
           show_progress(size)
           pool.synchronize { write_chunk(start, buffer) }
         end
