@@ -1,6 +1,7 @@
 require 'rmega/loggable'
 require 'rmega/utils'
 require 'rmega/pool'
+require 'rmega/progress'
 
 module Rmega
   class Downloader
@@ -29,38 +30,30 @@ module Rmega
     def download_chunk(start, size)
       stop = start + size - 1
       url = "#{base_url}/#{start}-#{stop}"
-      # logger.debug "#{Thread.current} downloading chunk @ #{start}"
       HTTPClient.new.get_content(url)
     end
 
     # Writes a buffer in the local file, starting from the start-n byte.
     def write_chunk(start, buffer)
-      # logger.debug "#{Thread.current} writing chunk @ #{position}"
       @local_file.seek(start)
       @local_file.write(buffer)
-    end
-
-    # Shows the progress bar in console
-    def show_progress(increment)
-      Utils.show_progress(:download, filesize, increment)
     end
 
     def chunks
       Utils.chunks(filesize)
     end
 
-    # TODO: checksum check
     def download(&block)
       @local_file = allocate
 
-      show_progress(0)
+      progress = Progress.new(filesize: filesize, verb: 'download')
 
       chunks.each do |start, size|
         pool.defer do
-          buffer = download_chunk(start, size)
-          buffer = yield(start, buffer)
-          show_progress(size)
-          pool.synchronize { write_chunk(start, buffer) }
+          encrypted_buffer = download_chunk(start, size)
+          clean_buffer = yield(start, encrypted_buffer)
+          progress.increment(size)
+          pool.synchronize { write_chunk(start, clean_buffer) }
         end
       end
 
