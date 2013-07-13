@@ -1,3 +1,5 @@
+require 'openssl'
+
 module Rmega
   module Crypto
     module Aes
@@ -8,10 +10,10 @@ module Rmega
       end
 
       def cipher
-        @cipher ||= OpenSSL::Cipher::AES.new 128, :CBC
+        @cipher ||= OpenSSL::Cipher::AES.new(128, :CBC)
       end
 
-      def encrypt key, data
+      def encrypt(key, data)
         cipher.reset
         cipher.padding = 0
         cipher.encrypt
@@ -20,7 +22,7 @@ module Rmega
         result.unpack packing
       end
 
-      def decrypt key, data
+      def decrypt(key, data)
         cipher.reset
         cipher.padding = 0
         cipher.decrypt

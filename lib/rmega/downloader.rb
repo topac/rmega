@@ -1,3 +1,7 @@
+require 'rmega/loggable'
+require 'rmega/utils'
+require 'rmega/pool'
+
 module Rmega
   class Downloader
     include Loggable
@@ -5,7 +9,7 @@ module Rmega
     attr_reader :pool, :base_url, :filesize, :local_path
 
     def initialize(params)
-      @pool = Thread.pool(params[:threads] || 5)
+      @pool = Pool.new(params[:threads])
       @filesize = params[:filesize]
       @base_url = params[:base_url]
       @local_path = params[:local_path]
@@ -17,7 +21,7 @@ module Rmega
       `dd if=/dev/zero of="#{local_path}" bs=1 count=0 seek=#{filesize} > /dev/null 2>&1`
       raise "Unable to create file #{local_path}" if File.size(local_path) != filesize
 
-      File.open(local_path, 'r+b').tap { |f| f.rewind }
+      ::File.open(local_path, 'r+b').tap { |f| f.rewind }
     end
 
     # Downloads a part of the remote file, starting from the start-n byte

@@ -1,14 +1,16 @@
+require 'rmega/utils'
+require 'rmega/crypto/crypto'
+require 'rmega/nodes/factory'
+
 module Rmega
   class Storage
     include Loggable
 
     attr_reader :session
 
-    def initialize session
+    def initialize(session)
       @session = session
     end
-
-    # Quota-related methods
 
     def used_space
       quota['cstrg']
@@ -22,46 +24,34 @@ module Rmega
       session.request a: 'uq', strg: 1
     end
 
-
-    # Nodes management
-
     def nodes
-      result = session.request a: 'f', c: 1
-      result['f'].map { |node_data| Node.fabricate(session, node_data) }
+      result = session.request(a: 'f', c: 1)
+      result['f'].map { |node_data| Nodes::Factory.build(session, node_data) }
     end
 
     def trash
-      @trash ||= nodes_by_type(:trash).first
+      @trash ||= nodes.find { |n| n.type == :trash }
     end
 
     def root
-      @root_node ||= nodes_by_type(:root).first
+      @root_node ||= nodes.find { |n| n.type == :root }
     end
-
-    def create_folder(parent_node, folder_name)
-      FolderNode.create session, parent_node, folder_name
-    end
-
-
-    # Handle node download
 
     def download(public_url, path)
-      Node.fabricate(session, public_url).download(path)
+      Nodes::Factory.build_from_url(session, public_url).download(path)
     end
 
-
-    # Handle file upload
-
-    def upload_url filesize
+    # TODO: refactor upload part
+    def upload_url(filesize)
       session.request(a: 'u', s: filesize)['p']
     end
 
-    def upload_chunk url, start, chunk
+    def upload_chunk(url, start, chunk)
       response = HTTPClient.new.post "#{url}/#{start}", chunk, timeout: Rmega.options.upload_timeout
       response.body
     end
 
-    def upload local_path, parent_node = root_node
+    def upload(local_path, parent_node = root)
       local_path = File.expand_path local_path
       filesize = File.size local_path
       upld_url = upload_url filesize

@@ -1,3 +1,8 @@
+require 'rmega/utils'
+require 'rmega/crypto/aes'
+require 'rmega/crypto/aes_ctr'
+require 'rmega/crypto/rsa'
+
 module Rmega
   module Crypto
     extend self
@@ -6,7 +11,7 @@ module Rmega
       Array.new(6).map { rand(0..0xFFFFFFFF) }
     end
 
-    def prepare_key ary
+    def prepare_key(ary)
       pkey = [0x93C467E3,0x7DB0C7A4,0xD1BE3F81,0x0152CB56]
       65536.times do
         0.step(ary.size-1, 4) do |j|
@@ -20,7 +25,7 @@ module Rmega
       pkey
     end
 
-    def decrypt_sid key, csid, privk
+    def decrypt_sid(key, csid, privk)
       # if csid ...
       t = Utils.mpi2b Utils.base64urldecode(csid)
       privk = Utils.a32_to_str decrypt_key(key, Utils.base64_to_a32(privk))
@@ -40,7 +45,7 @@ module Rmega
       Utils.base64urlencode Utils.b2s(decrypted_t)[0..42]
     end
 
-    def encrypt_attributes key, attributes_hash
+    def encrypt_attributes(key, attributes_hash)
       a32key = key.dup
       if a32key.size > 4
         a32key = [a32key[0] ^ a32key[4], a32key[1] ^ a32key[5], a32key[2] ^ a32key[6], a32key[3] ^ a32key[7]]
@@ -50,7 +55,7 @@ module Rmega
       Crypto::Aes.encrypt a32key, Utils.str_to_a32(attributes_str)
     end
 
-    def decrypt_attributes key, attributes_base64
+    def decrypt_attributes(key, attributes_base64)
       a32key = key.dup
       if a32key.size > 4
         a32key = [a32key[0] ^ a32key[4], a32key[1] ^ a32key[5], a32key[2] ^ a32key[6], a32key[3] ^ a32key[7]]
@@ -60,11 +65,11 @@ module Rmega
       JSON.parse attributes.gsub(/^MEGA/, '').rstrip
     end
 
-    def prepare_key_pw password_str
+    def prepare_key_pw(password_str)
       prepare_key Utils.str_to_a32(password_str)
     end
 
-    def stringhash aes_key, string
+    def stringhash(aes_key, string)
       s32 = Utils::str_to_a32 string
       h32 = [0,0,0,0]
 
@@ -74,7 +79,7 @@ module Rmega
       Utils::a32_to_base64 [h32[0],h32[2]]
     end
 
-    def encrypt_key key, data
+    def encrypt_key(key, data)
       return Aes.encrypt(key, data) if data.size == 4
       x = []
       (0..data.size).step(4) do |i|
@@ -85,7 +90,7 @@ module Rmega
       x
     end
 
-    def decrypt_key key, data
+    def decrypt_key(key, data)
       return Aes.decrypt(key, data) if data.size == 4
       x = []
       (0..data.size).step(4) do |i|

@@ -1,5 +1,5 @@
 module Rmega
-  module Node
+  module Nodes
     module Traversable
       def children
         storage.nodes.select { |node| node.parent_handle == handle }
@@ -14,6 +14,7 @@ module Rmega
       end
 
       def parent
+        return unless parent_handle
         storage.nodes.find { |node| node.handle == parent_handle }
       end
     end
