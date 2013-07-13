@@ -1,9 +1,8 @@
-require_relative 'traversable'
+require 'rmega/nodes/node'
 
 module Rmega
-  module Node
+  module Nodes
     class Inbox < Node
-
     end
   end
 end
