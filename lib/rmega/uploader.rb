@@ -1,6 +1,7 @@
 require 'rmega/loggable'
 require 'rmega/utils'
 require 'rmega/pool'
+require 'rmega/progress'
 
 module Rmega
   class Uploader
@@ -20,38 +21,31 @@ module Rmega
       size = buffer.length
       stop = start + size - 1
       url = "#{base_url}/#{start}-#{stop}"
-      # puts "#{Thread.current} uploading chunk @ #{start}"
+
       HTTPClient.new.post(url, buffer).body
     end
 
     def read_chunk(start, size)
-      # puts "#{Thread.current} reading chunk @ #{start}"
       @local_file.seek(start)
       @local_file.read(size)
-    end
-
-    # Shows the progress bar in console
-    def show_progress(increment)
-      Utils.show_progress(:upload, filesize, increment)
     end
 
     def chunks
       Utils.chunks(filesize)
     end
 
-    # TODO: checksum check
     def upload(&block)
       @local_file = ::File.open(local_path, 'rb')
 
-      show_progress(0)
+      progress = Progress.new(filesize: filesize, verb: 'upload')
 
       chunks.each do |start, size|
-        buffer = read_chunk(start, size)
 
         pool.defer do
-          encrypted_buffer = yield(start, buffer)
+          clean_buffer = pool.syncronize { read_chunk(start, size) }
+          encrypted_buffer = yield(start, clean_buffer)
           @last_result = upload_chunk(start, encrypted_buffer)
-          show_progress(buffer.size)
+          progress.increment(buffer.size)
         end
       end
 

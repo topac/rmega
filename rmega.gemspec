@@ -21,6 +21,5 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "httpclient"
   gem.add_dependency 'active_support'
-  gem.add_dependency "ruby-progressbar"
   gem.add_dependency "execjs"
 end
