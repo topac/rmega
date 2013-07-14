@@ -17,6 +17,10 @@ module Rmega
         return unless parent_handle
         storage.nodes.find { |node| node.handle == parent_handle }
       end
+
+      def empty?
+        children.size == 0
+      end
     end
   end
 end
