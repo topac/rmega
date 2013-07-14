@@ -1,8 +1,10 @@
 # Rmega
 
-A ruby library for the Mega.co.nz.  
-Tested using ruby 1.9.3+ (OpenSSL 0.9.8r+)  
-This is the result of a reverse engineering of the MEGA javascript code.
+A ruby library for MEGA ([https://mega.co.nz/](https://mega.co.nz/))  
+Requirements: Ruby 1.9.3+ and OpenSSL 0.9.8r+
+
+
+This is the result of a reverse engineering of the MEGA javascript code.  
 This is a work in progress, further functionality are coming.
 
 
@@ -18,8 +20,8 @@ Supported features are:
 
 ## Installation
 
-  Rmega is distributed via rubygems.org  
-  If you have ruby 1.9.3+ installed system wide, just type `gem install rmega`.
+  **Rmega** is distributed via [rubygems.org](https://rubygems.org/).  
+  If you have ruby installed system wide, just type `gem install rmega`.
 
 ## Usage
 
@@ -30,7 +32,7 @@ require 'rmega'
 ### Login
 
 ```ruby
-storage = Rmega.login('your_email', 'your_password')
+storage = Rmega.login('your@email.com', 'your_p4ssw0rd')
 ```
 
 ### Browsing
@@ -52,12 +54,18 @@ storage.nodes.each do |node|
   next unless node.type == :file
   puts node.name
 end
+
+# Print all the nodes (files, folders, etc.) within a spefic folder
+folder = storage.root.folders[12]
+folder.children.each do |node|
+  puts "Node #{node.name} (#{node.type})"
+end
 ```
 
 ### Searching
 
 ```ruby
-# Search for a file in a specific folder
+# Search for a file within a specific folder
 folder = storage.root.folders[2]
 folder.files.find { |file| file.name == "to_find.txt" }
 
@@ -80,6 +88,10 @@ folder = storage.nodes.find do |node|
   node.type == :folder and node.name == 'my_folder'
 end
 folder.download("~/Downloads/my_folder")
+
+# Download a file by url
+publid_url = 'https://mega.co.nz/#!MAkg2Iab!bc9Y2U6d93IlRRKVYpcC9hLZjS4G278OPdH6nTFPDNQ'
+storage.download(public_url, '~/Downloads')
 ```
 
 ### Upload
@@ -96,6 +108,7 @@ storage.root.upload("~/Downloads/my_other_file.txt")
 ### Creating a folder
 
 ```ruby
+# Create a subfolder of the root folder
 new_folder = storage.root.create_folder("my_documents")
 
 # Create a subfolder of an existing folder
@@ -123,6 +136,11 @@ file.delete
 # Move a file to the recyle bin
 file = storage.root.files.last
 file.trash
+
+# Empty the trash
+unless storage.trash.empty?
+  storage.trash.empty!
+end
 ```
 
 ## Contributing
