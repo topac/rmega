@@ -1,3 +1,5 @@
+require 'execjs'
+
 module Rmega
   module Crypto
     module Rsa
@@ -11,7 +13,7 @@ module Rmega
         @context ||= ExecJS.compile File.read(script_path)
       end
 
-      def decrypt t, privk
+      def decrypt(t, privk)
         context.call "RSAdecrypt", t, privk[2], privk[0], privk[1], privk[3]
       end
     end

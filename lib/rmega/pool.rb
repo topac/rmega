@@ -1,13 +1,11 @@
 require 'thread'
 
-class Thread
-  # Helper to create a Pool instance.
-  def self.pool(max)
-    Pool.new(max)
-  end
-
+module Rmega
   class Pool
+    MAX = 5
+
     def initialize(max)
+      max ||= MAX
       Thread.abort_on_exception = true
       @mutex = Mutex.new
       @threads = Array.new(max)
