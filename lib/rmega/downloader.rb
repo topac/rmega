@@ -46,7 +46,7 @@ module Rmega
     def download(&block)
       @local_file = allocate
 
-      progress = Progress.new(filesize: filesize, verb: 'download')
+      progress = Progress.new(total: filesize, caption: 'Download')
 
       chunks.each do |start, size|
         pool.defer do
