@@ -7,45 +7,45 @@ describe 'File upload' do
 
     before(:all) { @storage = login }
 
-    # context 'upload a small file to the root folder' do
+    context 'upload a small file to the root folder' do
 
-    #   before(:all) do
-    #     @name = "i_like_trains_#{rand(1E20)}"
-    #     @content = @name
-    #   end
+      before(:all) do
+        @name = "i_like_trains_#{rand(1E20)}"
+        @content = @name
+      end
 
-    #   def find_file
-    #     @storage.root.files.find { |f| f.name == @name }
-    #   end
+      def find_file
+        @storage.root.files.find { |f| f.name == @name }
+      end
 
-    #   let(:path) { File.join(temp_folder, @name) }
+      let(:path) { File.join(temp_folder, @name) }
 
-    #   before do
-    #     File.open(path, 'wb') { |f| f.write(@content) }
-    #     @storage.root.upload(path)
-    #   end
+      before do
+        File.open(path, 'wb') { |f| f.write(@content) }
+        @storage.root.upload(path)
+      end
 
-    #   it 'finds the uploaded file' do
-    #     file = find_file
-    #     file.delete
-    #     expect(file).not_to be_nil
-    #   end
+      it 'finds the uploaded file' do
+        file = find_file
+        file.delete
+        expect(file).not_to be_nil
+      end
 
-    #   context 'download the same file' do
+      context 'download the same file' do
 
-    #     let(:download_path) { "#{path}.downloaded" }
+        let(:download_path) { "#{path}.downloaded" }
 
-    #     before do
-    #       file = find_file
-    #       file.download(download_path)
-    #       file.delete
-    #     end
+        before do
+          file = find_file
+          file.download(download_path)
+          file.delete
+        end
 
-    #     it 'has the expected @content' do
-    #       expect(File.read(download_path)).to eql @content
-    #     end
-    #   end
-    # end
+        it 'has the expected @content' do
+          expect(File.read(download_path)).to eql @content
+        end
+      end
+    end
 
     context 'upload a big file to a specific folder' do
 
