@@ -11,11 +11,11 @@ module Rmega
   class Session
     include Loggable
 
-    attr_accessor :email, :request_id, :sid, :master_key
+    attr_reader :email, :request_id, :sid, :master_key
 
     def initialize(email, password)
-      self.email = email
-      self.request_id = random_request_id
+      @email = email
+      @request_id = random_request_id
 
       login(password)
     end
@@ -32,27 +32,30 @@ module Rmega
 
     def login(password)
       uh = Crypto.stringhash Crypto.prepare_key_pw(password), email
-      resp = request a: 'us', user: email, uh: uh
+      resp = request(a: 'us', user: email, uh: uh)
 
-      # Decrypt the master key
-      encrypted_key = Crypto.prepare_key_pw password
-      self.master_key = Crypto.decrypt_key encrypted_key, Utils.base64_to_a32(resp['k'])
+      # Decrypts the master key
+      encrypted_key = Crypto.prepare_key_pw(password)
+      @master_key = Crypto.decrypt_key(encrypted_key, Utils.base64_to_a32(resp['k']))
 
-      # Generate the session id
-      self.sid = Crypto.decrypt_sid master_key, resp['csid'], resp['privk']
+      # Generates the session id
+      @sid = Crypto.decrypt_sid(@master_key, resp['csid'], resp['privk'])
     end
 
     def random_request_id
       rand(1E7..1E9).to_i
     end
 
+    def request_url
+      "#{api_url}?id=#{@request_id}".tap do |url|
+        url << "&sid=#{@sid}" if @sid
+      end
+    end
+
     def request(body)
-      self.request_id += 1
-      url = "#{api_url}?id=#{request_id}"
-      url << "&sid=#{sid}" if sid
-      logger.info "POST #{url}"
-      logger.info "#{body.inspect}"
-      response = HTTPClient.new.post url, [body].to_json, timeout: api_request_timeout
+      @request_id += 1
+      logger.debug "POST #{request_url}\n#{body.inspect}"
+      response = HTTPClient.new.post(request_url, [body].to_json, timeout: api_request_timeout)
       logger.debug "#{response.code}\n#{response.body}"
       resp = JSON.parse(response.body).first
       raise RequestError.new(resp) if RequestError.error_code?(resp)
