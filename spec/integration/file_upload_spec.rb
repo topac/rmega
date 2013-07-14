@@ -41,7 +41,7 @@ describe 'File upload' do
           file.delete
         end
 
-        it 'has the expected @content' do
+        it 'has the expected content' do
           expect(File.read(download_path)).to eql @content
         end
       end
