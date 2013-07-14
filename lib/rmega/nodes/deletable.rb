@@ -9,7 +9,7 @@ module Rmega
       end
 
       def trash
-        request(a: 'm', n: handle, t: storage.trash_node.public_handle)
+        request(a: 'm', n: handle, t: storage.trash.handle)
       end
     end
   end
