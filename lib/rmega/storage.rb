@@ -1,5 +1,3 @@
-require 'rmega/utils'
-require 'rmega/crypto/crypto'
 require 'rmega/nodes/factory'
 
 module Rmega
@@ -21,12 +19,12 @@ module Rmega
     end
 
     def quota
-      session.request a: 'uq', strg: 1
+      session.request(a: 'uq', strg: 1)
     end
 
     def nodes
-      result = session.request(a: 'f', c: 1)
-      result['f'].map { |node_data| Nodes::Factory.build(session, node_data) }
+      results = session.request(a: 'f', c: 1)['f']
+      results.map { |node_data| Nodes::Factory.build(session, node_data) }
     end
 
     def trash
@@ -34,7 +32,7 @@ module Rmega
     end
 
     def root
-      @root_node ||= nodes.find { |n| n.type == :root }
+      @root ||= nodes.find { |n| n.type == :root }
     end
 
     def download(public_url, path)
