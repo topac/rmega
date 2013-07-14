@@ -14,6 +14,8 @@ Gem::Specification.new do |gem|
   gem.name          = "rmega"
   gem.require_paths = ["lib"]
   gem.version       = Rmega::VERSION
+  gem.license       = 'MIT'
+  gem.required_ruby_version = '>= 1.9.3'
 
   gem.add_development_dependency "pry"
   gem.add_development_dependency "rspec"
