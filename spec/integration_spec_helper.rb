@@ -22,6 +22,6 @@ def temp_folder
 end
 
 RSpec.configure do |config|
-  config.before { FileUtils.mkdir_p(temp_folder) }
-  config.after { FileUtils.rm_rf(temp_folder) }
+  config.before(:all) { FileUtils.mkdir_p(temp_folder) }
+  config.after(:all) { FileUtils.rm_rf(temp_folder) }
 end
