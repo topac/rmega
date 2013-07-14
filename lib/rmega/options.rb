@@ -3,7 +3,6 @@ require 'ostruct'
 module Rmega
   def self.default_options
     {
-      show_progress:        true,
       upload_timeout:       120,
       api_request_timeout:  20,
       api_url:              'https://eu.api.mega.co.nz/cs'
