@@ -37,7 +37,7 @@ module Rmega
     def upload(&block)
       @local_file = ::File.open(local_path, 'rb')
 
-      progress = Progress.new(filesize: filesize, verb: 'upload')
+      progress = Progress.new(total: filesize, caption: 'Upload')
 
       chunks.each do |start, size|
 
