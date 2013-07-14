@@ -1,5 +1,3 @@
-require 'rmega/utils'
-
 module Rmega
   module Utils
     extend self
