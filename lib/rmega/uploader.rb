@@ -42,10 +42,10 @@ module Rmega
       chunks.each do |start, size|
 
         pool.defer do
-          clean_buffer = pool.syncronize { read_chunk(start, size) }
+          clean_buffer = pool.synchronize { read_chunk(start, size) }
           encrypted_buffer = yield(start, clean_buffer)
           @last_result = upload_chunk(start, encrypted_buffer)
-          progress.increment(buffer.size)
+          progress.increment(clean_buffer.size)
         end
       end
 
