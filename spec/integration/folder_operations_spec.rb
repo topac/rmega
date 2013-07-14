@@ -1,30 +1,42 @@
 require 'integration_spec_helper'
 
 describe 'Folders operations' do
+
   if account_file_exists?
-    before :all do
-      @session = storage.session
-      @parent_node = @session.storage.root_node
-      @folder_name = "test_folder_#{rand.denominator}_#{rand.denominator}"
-      @folder_node = @session.storage.create_folder @parent_node, @folder_name
+
+    before(:all) do
+      @name = "test_folder_#{rand.denominator}_#{rand.denominator}"
+      @storage = login
     end
 
-    it 'creates a new folder' do
-      @folder_node.should be_kind_of Rmega::Node
+    def find_folder
+      @storage.root.folders.find { |f| f.name == @name }
     end
 
-    it 'finds the folder' do
-      node = @session.storage.nodes.find { |n| n.name == @folder_name }
-      node.should_not be_nil
+    context 'when #create_folder is called on a node' do
+
+      it 'creates a new folder under that node' do
+        folder = @storage.root.create_folder(@name)
+        expect(folder.name).to eql @name
+      end
     end
 
-    it 'deletes the folder' do
-      lambda { @folder_node.delete }.should_not raise_error
+    context 'searching for a folder by its name' do
+
+      it 'returns the matching folder' do
+        expect(find_folder.name).to eql @name
+      end
     end
 
-    it 'does not find the folder anymore' do
-      node = @session.storage.nodes.find { |n| n.name == @folder_name }
-      node.should be_nil
+    context 'when #delete is called on a folder node' do
+
+      it 'deletes the folder' do
+        expect(find_folder.delete).to eql 0
+      end
+
+      it 'does not find the folder anymore' do
+        expect(find_folder).to be_nil
+      end
     end
   end
 end

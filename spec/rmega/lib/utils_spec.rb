@@ -22,13 +22,6 @@ describe Rmega::Utils do
     end
   end
 
-  describe '#format_bytes' do
-    it 'converts to the correct unit' do
-      described_class.format_bytes(1024, 2).should == '1.0kb'
-      described_class.format_bytes(1024**2).should == '1.0MB'
-    end
-  end
-
   describe '#a32_to_str' do
     it 'returns the expected value' do
       a32 = [1953853537, 1660944384]

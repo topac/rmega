@@ -1,9 +1,12 @@
+require 'rmega/utils'
+require 'rmega/crypto/aes'
+
 module Rmega
   module Crypto
     module AesCtr
       extend self
 
-      def decrypt key, nonce, data
+      def decrypt(key, nonce, data)
         raise "invalid nonce" if nonce.size != 4 or !nonce.respond_to?(:pack)
         raise "invalid key" if key.size != 4 or !key.respond_to?(:pack)
 
@@ -47,7 +50,7 @@ module Rmega
         {data: decrypted_data, mac: mac}
       end
 
-      def encrypt key, nonce, data
+      def encrypt(key, nonce, data)
         raise "invalid nonce" if nonce.size != 4 or !nonce.respond_to?(:pack)
         raise "invalid key" if key.size != 4 or !key.respond_to?(:pack)
 

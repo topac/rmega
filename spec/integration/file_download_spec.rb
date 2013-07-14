@@ -1,17 +1,13 @@
 require 'integration_spec_helper'
 require 'fileutils'
 
-describe 'File operations' do
+describe 'File download' do
 
   if account_file_exists?
 
-    let(:temp_folder) { "/tmp/.rmega_spec" }
+    let(:storage) { login }
 
-    before { FileUtils.mkdir_p(temp_folder) }
-
-    after { FileUtils.rm_rf(temp_folder) }
-
-    context 'give a public mega url, related to a small file' do
+    context 'given a public mega url (a small file)' do
 
       # A file called testfile.txt containting the string "helloworld!"
       let(:url) { 'https://mega.co.nz/#!MAkg2Iab!bc9Y2U6d93IlRRKVYpcC9hLZjS4G278OPdH6nTFPDNQ' }
@@ -23,7 +19,7 @@ describe 'File operations' do
       end
     end
 
-    context 'give a public mega url, related to a big file' do
+    context 'given a public mega url (a big file)' do
 
       # A file called testfile_big_15mb.txt containting the word "topac" repeated 3145728 times (~ 15mb)
       let(:url) { 'https://mega.co.nz/#!NYVkDaLD!BKyN5SRpOaEtGnTcwiAqcxmJc7p-k0IPWKAW-471KRE' }

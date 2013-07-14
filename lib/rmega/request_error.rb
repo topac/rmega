@@ -1,18 +1,15 @@
 module Rmega
-  class ApiRequestError < StandardError
-    attr_reader :code
-
-    def initialize error_code
-      @code = error_code
-      error_description = self.class.all_messages[@code]
-      super "Received error code #{@code}. #{error_description}".strip
+  class RequestError < StandardError
+    def initialize(error_code)
+      message = self.class.errors[error_code]
+      super("Error #{error_code}: #{message}")
     end
 
-    def self.is_error_code? number
-      (Integer(number) && number.to_i < 0) rescue false
+    def self.error_code?(number)
+      number.respond_to?(:to_i) and number.to_i < 0
     end
 
-    def self.all_messages
+    def self.errors
       {
         -1  => 'An internal error has occurred. Please submit a bug report, detailing the exact circumstances in which this error occurred.',
         -2  => 'You have passed invalid arguments to this command.',

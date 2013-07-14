@@ -1,35 +1,16 @@
+require 'rmega/utils'
+
 module Rmega
   module Utils
     extend self
 
-    def show_progress direction, total, increment = 0
-      return unless Rmega.options.show_progress
-      if increment.zero?
-        @progressbar = nil
-        @progressbar_progress = 0
-      end
-      @progressbar_progress += increment
-      format = "#{direction.to_s.capitalize} in progress #{Utils.format_bytes(@progressbar_progress)} of #{Utils.format_bytes(total)} | %P% | %e        "
-      @progressbar ||= ProgressBar.create format: format, total: total
-      @progressbar.reset if increment.zero?
-      @progressbar.format format
-      @progressbar.progress += increment
-    end
-
-    def format_bytes bytes, round = 2
-      units = ['bytes', 'kb', 'MB', 'GB', 'TB', 'PB']
-      e = (bytes == 0 ? 0 : Math.log(bytes)) / Math.log(1024)
-      value = bytes.to_f / (1024 ** e.floor)
-      "#{value.round(round)}#{units[e]}"
-    end
-
-    def str_to_a32 string
+    def str_to_a32(string)
       pad_to = string.bytesize + ((string.bytesize) % 4)
       string = string.ljust pad_to, "\x00"
       string.unpack 'l>*'
     end
 
-    def a32_to_str a32, len=nil
+    def a32_to_str(a32, len = nil)
       if len
         b = []
         len.times do |i|
@@ -46,15 +27,15 @@ module Rmega
       @b64a ||= ('A'..'Z').to_a + ('a'..'z').to_a + ('0'..'9').to_a + ["-", "_", "="]
     end
 
-    def a32_to_base64 a32
+    def a32_to_base64(a32)
       base64urlencode a32_to_str(a32)
     end
 
-    def base64_to_a32 base64
+    def base64_to_a32(base64)
       str_to_a32 base64urldecode(base64)
     end
 
-    def base64urlencode string
+    def base64urlencode(string)
       i = 0
       tmp_arr = []
 
@@ -81,7 +62,7 @@ module Rmega
       (r != 0) ? enc[0..r - 4] : enc
     end
 
-    def base64urldecode data
+    def base64urldecode(data)
       data += '=='[((2-data.length*3)&3)..-1]
 
       i = 0
@@ -121,7 +102,7 @@ module Rmega
       tmp_arr.join ''
     end
 
-    def mpi2b s
+    def mpi2b(s)
       bn = 1
       r = [0]
       rn = 0
@@ -159,7 +140,7 @@ module Rmega
       r
     end
 
-    def b2s b
+    def b2s(b)
       bs = 28
       bm = 268435455
       bn = 1; bc = 0; r = [0]; rb = 1; rn = 0
@@ -195,6 +176,31 @@ module Rmega
       end
 
       rr
+    end
+
+    def chunks(size)
+      list = {}
+      p = 0
+      pp = 0
+      i = 1
+
+      while i <= 8 and p < size - (i * 0x20000)
+        list[p] = i * 0x20000
+        pp = p
+        p += list[p]
+        i += 1
+      end
+
+      while p < size
+        list[p] = 0x100000
+        pp = p
+        p += list[p]
+      end
+
+      if size - pp > 0
+        list[pp] = size - pp
+      end
+      list
     end
   end
 end

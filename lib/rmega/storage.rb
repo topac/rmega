@@ -1,18 +1,16 @@
+require 'rmega/utils'
+require 'rmega/crypto/crypto'
+require 'rmega/nodes/factory'
+
 module Rmega
   class Storage
+    include Loggable
 
     attr_reader :session
 
-    def initialize session
+    def initialize(session)
       @session = session
     end
-
-    def logger
-      Rmega.logger
-    end
-
-
-    # Quota-related methods
 
     def used_space
       quota['cstrg']
@@ -26,81 +24,34 @@ module Rmega
       session.request a: 'uq', strg: 1
     end
 
-
-    # Nodes management
-
     def nodes
-      nodes = session.request a: 'f', c: 1
-      nodes['f'].map { |node_data| Node.fabricate(session, node_data) }
+      result = session.request(a: 'f', c: 1)
+      result['f'].map { |node_data| Nodes::Factory.build(session, node_data) }
     end
 
-    def nodes_by_type type
-      nodes.select { |n| n.type == type }
+    def trash
+      @trash ||= nodes.find { |n| n.type == :trash }
     end
 
-    def nodes_by_name name_regexp
-      nodes.select do |node|
-        node.name and node.name =~ name_regexp
-      end
+    def root
+      @root_node ||= nodes.find { |n| n.type == :root }
     end
 
-    def trash_node
-      @trash ||= nodes_by_type(:trash).first
+    def download(public_url, path)
+      Nodes::Factory.build_from_url(session, public_url).download(path)
     end
 
-    def root_node
-      @root_node ||= nodes_by_type(:root).first
-    end
-
-    def create_folder parent_node, folder_name
-      FolderNode.create session, parent_node, folder_name
-    end
-
-
-    # Handle node download
-
-    def self.chunks size
-      list = {}
-      p = 0
-      pp = 0
-      i = 1
-
-      while i <= 8 and p < size - (i * 0x20000)
-        list[p] = i * 0x20000
-        pp = p
-        p += list[p]
-        i += 1
-      end
-
-      while p < size
-        list[p] = 0x100000
-        pp = p
-        p += list[p]
-      end
-
-      if size - pp > 0
-        list[pp] = size - pp
-      end
-      list
-    end
-
-    def download public_url, path
-      Node.fabricate(session, public_url).download(path)
-    end
-
-
-    # Handle file upload
-
-    def upload_url filesize
+    # TODO: refactor upload part
+    def upload_url(filesize)
       session.request(a: 'u', s: filesize)['p']
     end
 
-    def upload_chunk url, start, chunk
+    def upload_chunk(url, start, chunk)
       response = HTTPClient.new.post "#{url}/#{start}", chunk, timeout: Rmega.options.upload_timeout
       response.body
     end
 
-    def upload local_path, parent_node = root_node
+    def upload(local_path, parent_node = root)
       local_path = File.expand_path local_path
       filesize = File.size local_path
       upld_url = upload_url filesize
@@ -114,7 +65,7 @@ module Rmega
 
       Utils.show_progress :upload, filesize
 
-      self.class.chunks(filesize).each do |chunk_start, chunk_size|
+      Utils.chunks(filesize).each do |chunk_start, chunk_size|
         buffer = local_file.read chunk_size
 
         # TODO: should be (chunk_start/0x1000000000) >>> 0, (chunk_start/0x10) >>> 0
