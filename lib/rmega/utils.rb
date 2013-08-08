@@ -3,9 +3,9 @@ module Rmega
     extend self
 
     def str_to_a32(string)
-      pad_to = string.bytesize + ((string.bytesize) % 4)
-      string = string.ljust pad_to, "\x00"
-      string.unpack 'l>*'
+      size = (string.bytesize + 3) >> 2
+      string = string.ljust (string.bytesize + 3), "\x00"
+      string.unpack "l>#{size}"
     end
 
     def a32_to_str(a32, len = nil)
