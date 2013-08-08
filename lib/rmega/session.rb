@@ -31,7 +31,7 @@ module Rmega
     end
 
     def login(password)
-      uh = Crypto.stringhash Crypto.prepare_key_pw(password), email
+      uh = Crypto.stringhash Crypto.prepare_key_pw(password), email.downcase
       resp = request(a: 'us', user: email, uh: uh)
 
       # Decrypts the master key
