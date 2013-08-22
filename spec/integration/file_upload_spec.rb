@@ -61,6 +61,7 @@ describe 'File upload' do
 
       let!(:folder) { @storage.root.create_folder(@name) }
 
+      # TODO: `let` and `subject` declarations are not intended to be called in a `before(:all)`
       before(:all) { folder.upload(@path) }
 
       it 'finds the uploaded file and verify its content' do
