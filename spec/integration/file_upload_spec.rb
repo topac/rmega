@@ -57,15 +57,13 @@ describe 'File upload' do
         File.open(@path, 'wb') do |f|
           512.times { f.write(@buffer) }
         end
+
+        @folder = @storage.root.create_folder(@name)
+        @folder.upload(@path)
       end
 
-      let!(:folder) { @storage.root.create_folder(@name) }
-
-      # TODO: `let` and `subject` declarations are not intended to be called in a `before(:all)`
-      before(:all) { folder.upload(@path) }
-
       it 'finds the uploaded file and verify its content' do
-        file = folder.files.find { |f| f.name == @name }
+        file = @folder.files.find { |f| f.name == @name }
         download_path = "#{@path}.downloaded"
         file.download(download_path)
 
@@ -74,7 +72,7 @@ describe 'File upload' do
         end
       end
 
-      after { folder.delete }
+      after { @folder.delete if @folder }
     end
   end
 end
