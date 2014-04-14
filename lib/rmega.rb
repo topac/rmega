@@ -1,5 +1,4 @@
 require 'active_support/json'
-require 'active_support/core_ext/object/to_json'
 require 'active_support/core_ext/module/delegation'
 require 'active_support/core_ext/string/inflections'
 require 'httpclient'
