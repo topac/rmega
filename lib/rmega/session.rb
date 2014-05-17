@@ -11,11 +11,12 @@ module Rmega
   class Session
     include Loggable
 
-    attr_reader :email, :request_id, :sid, :master_key
+    attr_reader :email, :request_id, :sid, :master_key, :shared_keys, :rsa_privk
 
     def initialize(email, password)
       @email = email
       @request_id = random_request_id
+      @shared_keys = {}
 
       login(password)
     end

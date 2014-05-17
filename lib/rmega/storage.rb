@@ -24,7 +24,20 @@ module Rmega
 
     def nodes
       results = session.request(a: 'f', c: 1)['f']
-      results.map { |node_data| Nodes::Factory.build(session, node_data) }
+
+      results.map do |node_data|
+        node = Nodes::Factory.build(session, node_data)
+        node.process_shared_key if node.shared_root?
+        node
+      end
+    end
+
+    def folders
+      list = nodes
+      root_handle = list.find { |node| node.type == :root }.handle
+      list.select do |node|
+        node.shared_root? || (node.type == :folder && node.parent_handle == root_handle)
+      end
     end
 
     def trash
