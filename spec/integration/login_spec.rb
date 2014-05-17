@@ -12,7 +12,7 @@ describe 'Login' do
 
     context 'when email and password are invalid' do
       it 'raises an error' do
-        expect { Rmega.login('a@apple.com', 'b') }.to raise_error(Rmega::RequestError)
+        expect { Rmega.login('a@apple.com', 'b') }.to raise_error(Rmega::Errors::ServerError)
       end
     end
   end
