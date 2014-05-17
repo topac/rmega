@@ -1,5 +1,5 @@
 require 'rmega/storage'
-require 'rmega/request_error'
+require 'rmega/errors'
 require 'rmega/crypto/crypto'
 require 'rmega/utils'
 
@@ -25,6 +25,7 @@ module Rmega
     end
 
     delegate :api_url, :api_request_timeout, to: :options
+    delegate :max_retries, :retry_interval, to: :options
 
     def storage
       @storage ||= Storage.new(self)
@@ -53,14 +54,28 @@ module Rmega
       end
     end
 
-    def request(body)
+    def request(content, retries = max_retries)
       @request_id += 1
-      logger.debug "POST #{request_url}\n#{body.inspect}"
-      response = HTTPClient.new.post(request_url, [body].to_json, timeout: api_request_timeout)
-      logger.debug "#{response.code}\n#{response.body}"
-      resp = JSON.parse(response.body).first
-      raise RequestError.new(resp) if RequestError.error_code?(resp)
-      resp
+      logger.debug "POST #{request_url} #{content.inspect}"
+
+      response = HTTPClient.new.post(request_url, [content].to_json, timeout: api_request_timeout)
+      code, body = response.code.to_i, response.body
+
+      logger.debug("#{code} #{body}")
+
+      if code == 500 && body.to_s.empty?
+        raise Errors::ServerError.new("Server too busy", temporary: true)
+      else
+        json = JSON.parse(body).first
+        raise Errors::ServerError.new(json) if json.to_s =~ /\A\-\d+\z/
+        json
+      end
+    rescue SocketError, Errors::ServerError => error
+      raise(error) if retries < 0
+      raise(error) if error.respond_to?(:temporary?) && !error.temporary?
+      retries -= 1
+      sleep(retry_interval)
+      retry
     end
   end
 end
