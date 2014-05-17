@@ -5,17 +5,6 @@ Requirements: Ruby 1.9.3+ and OpenSSL 0.9.8r+
 
 
 This is the result of a reverse engineering of the MEGA javascript code.  
-Work in progress, further functionality are coming.
-
-
-Supported features are:
-  * Login
-  * Searching and browsing
-  * Creating folders
-  * Download of files and folders (multi-thread)
-  * Download with public links (multi-thread)
-  * Upload of files (multi-thread)
-  * Deleting and trashing
 
 
 ## Installation
