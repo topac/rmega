@@ -39,7 +39,8 @@ module Rmega
       @master_key = Crypto.decrypt_key(encrypted_key, Utils.base64_to_a32(resp['k']))
 
       # Generates the session id
-      @sid = Crypto.decrypt_sid(@master_key, resp['csid'], resp['privk'])
+      @rsa_privk = Crypto.decrypt_rsa_privk(@master_key, resp['privk'])
+      @sid = Crypto.decrypt_sid(@rsa_privk, resp['csid'])
     end
 
     def random_request_id
