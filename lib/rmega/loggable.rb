@@ -1,18 +1,26 @@
 require 'logger'
+require 'active_support/concern'
 
 module Rmega
+  def self.logger
+    @logger ||= begin
+      logger = Logger.new($stdout)
+      logger.level = Logger::ERROR
+      logger
+    end
+  end
+
   module Loggable
+    extend ActiveSupport::Concern
+
     def logger
-      @@logger ||= begin
-        Logger.new($stdout).tap do |l|
-          l.formatter = Proc.new { | severity, time, progname, msg| "#{msg}\n" }
-          l.level = Logger::ERROR
-        end
-      end
+      Rmega.logger
     end
 
-    def self.included(base)
-      base.send(:extend, self)
+    module ClassMethods
+      def logger
+        Rmega.logger
+      end
     end
   end
 end
