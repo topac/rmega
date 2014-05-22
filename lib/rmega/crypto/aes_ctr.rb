@@ -10,6 +10,8 @@ module Rmega
         raise "invalid nonce" if nonce.size != 4 or !nonce.respond_to?(:pack)
         raise "invalid key" if key.size != 4 or !key.respond_to?(:pack)
 
+        nonce = nonce.dup
+
         mac = [nonce[0], nonce[1], nonce[0], nonce[1]]
         enc = nil
         a32 = Utils.str_to_a32 data
