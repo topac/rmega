@@ -2,7 +2,7 @@
 
 ### New Features
 
-* #7 Rmega now supports shared folders and files.
+* \#7 Rmega now supports shared folders and files.
 
 * The method `Storage#folders` can now be used to get a list of your
   first-level folders + first-level shared folders.
