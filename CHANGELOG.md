@@ -1,3 +1,7 @@
+## 0.1.7
+
+* \#9 Fixed decryption of nodes shared by you to others
+
 ## 0.1.6
 
 ### New Features
