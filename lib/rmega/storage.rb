@@ -6,6 +6,8 @@ module Rmega
 
     attr_reader :session
 
+    delegate :master_key, :shared_keys, to: :session
+
     def initialize(session)
       @session = session
     end
@@ -23,9 +25,11 @@ module Rmega
     end
 
     def nodes
-      results = session.request(a: 'f', c: 1)['f']
+      results = session.request(a: 'f', c: 1)
 
-      results.map do |node_data|
+      store_shared_keys(results['ok'] || [])
+
+      (results['f'] || []).map do |node_data|
         node = Nodes::Factory.build(session, node_data)
         node.process_shared_key if node.shared_root?
         node
@@ -50,6 +54,14 @@ module Rmega
 
     def download(public_url, path)
       Nodes::Factory.build_from_url(session, public_url).download(path)
+    end
+
+    private
+
+    def store_shared_keys(list)
+      list.each do |hash|
+        shared_keys[hash['h']] = Crypto.decrypt_key(master_key, Utils.base64_to_a32(hash['k']))
+      end
     end
   end
 end
