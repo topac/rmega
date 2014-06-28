@@ -2,7 +2,7 @@
 require File.expand_path('../lib/rmega/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.authors       = ["Daniele Molteni"]
+  gem.authors       = ["topac"]
   gem.email         = ["dani.m.mobile@gmail.com"]
   gem.description   = %q{mega.co.nz ruby api}
   gem.summary       = %q{mega.co.nz ruby api}
