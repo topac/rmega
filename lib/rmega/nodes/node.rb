@@ -73,9 +73,11 @@ module Rmega
         return unless sk
 
         shared_key = if sk.size > 22
-          sk = Rmega::Utils.mpi2b(Rmega::Utils.base64urldecode(sk))
-          dec_sk = Rmega::Crypto::Rsa.decrypt(sk, rsa_privk)
-          Utils.str_to_a32(Rmega::Utils.b2s(dec_sk)[0..15])
+          # Decrypt sk
+          sk = Utils.base64_mpi_to_bn(sk)
+          sk = Rmega::Crypto::Rsa.decrypt(sk, rsa_privk).to_s(16)
+          sk = '0' + sk if sk.length % 2 > 0
+          Utils.str_to_a32(Utils.hexstr_to_bstr(sk)[0..15])
         else
           Crypto.decrypt_key session.master_key, Utils.base64_to_a32(data['sk'])
         end
