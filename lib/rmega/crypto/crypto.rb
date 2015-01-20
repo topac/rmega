@@ -25,28 +25,42 @@ module Rmega
       pkey
     end
 
-    def decrypt_rsa_privk(key, privk)
-      privk = Utils.a32_to_str decrypt_key(key, Utils.base64_to_a32(privk))
-      rsa_privk = Array.new 4
+    def decompose_rsa_privk(privk, bignums: true)
+      4.times.inject([]) do |decomposed_key|
+        len = ((privk[0].ord * 256 + privk[1].ord + 7) >> 3) + 2
+        privk_part = privk[0, len]
 
-      # Decompose private key
-      4.times do |i|
-        l = ((privk[0].ord * 256 + privk[1].ord + 7) >> 3) + 2
-        rsa_privk[i] = Utils.mpi2b privk[0..l-1]
-        privk = privk[l..-1]
+        if bignums
+          # decomposed_key << privk_part[2, privk_part.length].unpack('H*').first.to_i(16)
+          decomposed_key << Utils.string_to_bignum(privk[0..len-1][2..-1])
+        else
+          decomposed_key << Utils.mpi2b(privk[0..len-1])
+        end
+
+        privk = privk[len..-1]
+
+        decomposed_key
       end
-
-      rsa_privk
     end
 
-    def decrypt_sid(rsa_privk, csid)
-      # if csid ...
-      t = Utils.mpi2b Utils.base64urldecode(csid)
+    def rsa_decrypt_privk(key, privk, csid)
+      a32privk = decrypt_key(key, Utils.base64_to_a32(privk))
+      privk = Utils.a32_to_str(a32privk)
+      privk2 = privk.dup
 
-      # TODO - remove execjs and build the key using the ruby lib
-      # rsa_key = Crypto::Rsa.build_rsa_key rsa_privk
-      decrypted_t = Rsa.decrypt t, rsa_privk
-      Utils.base64urlencode Utils.b2s(decrypted_t)[0..42]
+      # Decompose private key
+      rsa_privk = decompose_rsa_privk(privk, bignums: true)
+
+      # Decrypt csid
+      csid = Utils.base64_mpi_to_bn(csid)
+      csid = Rsa.decrypt(csid, rsa_privk)
+
+      csid = csid.to_s(16)
+      csid = '0' + csid if csid.length % 2 > 0
+      csid = Utils.hexstr_to_bstr(csid)[0,43]
+      csid = Utils.base64urlencode(csid)
+
+      return [rsa_privk, csid]
     end
 
     def encrypt_attributes(key, attributes_hash)
