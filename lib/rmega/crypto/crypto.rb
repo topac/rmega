@@ -25,17 +25,16 @@ module Rmega
       pkey
     end
 
-    def decompose_rsa_privk(privk, bignums: true)
+    def decompose_rsa_privk(privk)
       4.times.inject([]) do |decomposed_key|
         len = ((privk[0].ord * 256 + privk[1].ord + 7) >> 3) + 2
         privk_part = privk[0, len]
 
-        if bignums
-          # decomposed_key << privk_part[2, privk_part.length].unpack('H*').first.to_i(16)
-          decomposed_key << Utils.string_to_bignum(privk[0..len-1][2..-1])
-        else
-          decomposed_key << Utils.mpi2b(privk[0..len-1])
-        end
+        # decomposed_key << privk_part[2, privk_part.length].unpack('H*').first.to_i(16)
+        decomposed_key << Utils.string_to_bignum(privk[0..len-1][2..-1])
+
+        # a32
+        # decomposed_key << Utils.mpi2b(privk[0..len-1])
 
         privk = privk[len..-1]
 
@@ -49,7 +48,7 @@ module Rmega
       privk2 = privk.dup
 
       # Decompose private key
-      rsa_privk = decompose_rsa_privk(privk, bignums: true)
+      rsa_privk = decompose_rsa_privk(privk)
 
       # Decrypt csid
       csid = Utils.base64_mpi_to_bn(csid)
