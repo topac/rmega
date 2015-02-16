@@ -1,6 +1,3 @@
-require 'logger'
-require 'active_support/concern'
-
 module Rmega
   def self.logger
     @logger ||= begin

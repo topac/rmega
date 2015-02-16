@@ -1,16 +1,18 @@
-require 'rmega/utils'
-require 'rmega/pool'
-require 'rmega/progress'
-
 module Rmega
   module Nodes
     module Uploadable
+      include Net
+
       def upload_chunk(base_url, start, buffer)
         size = buffer.length
         stop = start + size - 1
         url = "#{base_url}/#{start}-#{stop}"
 
-        HTTPClient.new.post(url, buffer).body
+        survive do
+          response = http_post(url, buffer)
+          raise("Upload failed") if response.code.to_i != 200
+          return response.body
+        end
       end
 
       def read_chunk(file, start, size)
@@ -18,65 +20,72 @@ module Rmega
         file.read(size)
       end
 
-      def encrypt_chunck(rnd_key, file_mac, start, clean_buffer)
-        nonce = [rnd_key[4], rnd_key[5], (start/0x1000000000) >> 0, (start/0x10) >> 0]
+      def encrypt_chunck(start, clean_buffer, aes_key, nonce)
+        iv = Utils.str_to_a32(nonce) + [(start/0x1000000000) >> 0, (start/0x10) >> 0]
+        enc_data = aes_ctr_encrypt(aes_key, clean_buffer, Utils.a32_to_str(iv))
 
-        encrypted = Crypto::AesCtr.encrypt(rnd_key[0..3], nonce, clean_buffer)
-        chunk_mac, data = encrypted[:mac], encrypted[:data]
+        # calculate mac
+        mac_iv = nonce * 2
+        mac = aes_cbc_mac(aes_key, clean_buffer, mac_iv)
 
-        file_mac = [file_mac[0] ^ chunk_mac[0], file_mac[1] ^ chunk_mac[1],
-                    file_mac[2] ^ chunk_mac[2], file_mac[3] ^ chunk_mac[3]]
-
-        file_mac = Crypto::Aes.encrypt(rnd_key[0..3], file_mac)
-
-        data
+        return [enc_data, mac]
       end
 
       def upload(path)
         path = ::File.expand_path(path)
         filesize = ::File.size(path)
+
+        raise "Empty file - #{path}" if filesize == 0
+
         file = ::File.open(path, 'rb')
 
-        ul_key = Crypto.random_key
-        file_mac = [0, 0, 0, 0]
+        rnd_node_key = NodeKey.random
         file_handle = nil
         base_url = upload_url(filesize)
 
         pool = Pool.new
         read_mutex = Mutex.new
 
-        progress = Progress.new(total: filesize, caption: 'Upload')
+        progress = Progress.new(filesize, caption: 'Upload')
 
-        Utils.chunks(filesize).each do |start, size|
-          pool.defer do
-            encrypted_buffer = nil
+        chunk_macs = {}
+
+        self.class.each_chunk(filesize) do |start, size|
+          pool.process do
+            clean_buffer = nil
 
             read_mutex.synchronize do
               clean_buffer = read_chunk(file, start, size)
-              encrypted_buffer = encrypt_chunck(ul_key, file_mac, start, clean_buffer)
             end
 
+            encrypted_buffer, chunk_mac = *encrypt_chunck(start, clean_buffer, rnd_node_key.aes_key, rnd_node_key.ctr_nonce)
             file_handle = upload_chunk(base_url, start, encrypted_buffer)
+            chunk_macs[start] = chunk_mac
+
             progress.increment(size)
           end
         end
 
-        pool.wait_done
+        pool.shutdown
 
-        attribs = {n: ::File.basename(path)}
-        encrypt_attribs = Utils.a32_to_base64(Crypto.encrypt_attributes(ul_key[0..3], attribs))
+        # encrypt attributes
+        attributes_str = "MEGA"
+        attributes_str << {n: ::File.basename(path)}.to_json
+        attributes_str << ("\x00" * (16 - (attributes_str.size % 16)))
+        encrypted_attributes = aes_cbc_encrypt(rnd_node_key.aes_key, attributes_str)
 
-        meta_mac = [file_mac[0] ^ file_mac[1], file_mac[2] ^ file_mac[3]]
+        # Calculate meta_mac
+        file_mac = aes_cbc_mac(rnd_node_key.aes_key, chunk_macs.sort.map(&:last).join, "\x0"*16)
+        rnd_node_key.meta_mac = Utils.compact_to_8_bytes(file_mac)
+        encrypted_key = aes_ecb_encrypt(session.master_key, rnd_node_key.generate)
 
-        key = [ul_key[0] ^ ul_key[4], ul_key[1] ^ ul_key[5], ul_key[2] ^ meta_mac[0],
-               ul_key[3] ^ meta_mac[1], ul_key[4], ul_key[5], meta_mac[0], meta_mac[1]]
+        resp = request(a: 'p', t: handle, n: [
+          {h: file_handle, t: 0, a: Utils.base64urlencode(encrypted_attributes), k: Utils.base64urlencode(encrypted_key)}
+        ])
 
-        encrypted_key = Utils.a32_to_base64 Crypto.encrypt_key(session.master_key, key)
-        request(a: 'p', t: handle, n: [{h: file_handle, t: 0, a: encrypt_attribs, k: encrypted_key}])
-
-        attribs[:n]
+        return Nodes::Factory.build(session, resp['f'][0])
       ensure
-        file.close
+        file.close if file
       end
     end
   end

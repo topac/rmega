@@ -1,6 +1,3 @@
-require 'rmega/nodes/node'
-require 'rmega/nodes/traversable'
-
 module Rmega
   module Nodes
     class Trash < Node

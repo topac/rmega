@@ -1,17 +1,44 @@
-require 'rmega/pool'
-require 'rmega/utils'
-
 module Rmega
   module Nodes
     module Downloadable
+      include Net
 
       # Creates the local file allocating filesize-n bytes (of /dev/zero) for it.
       # Opens the local file to start writing from the beginning of it.
       def allocate(path)
-        `dd if=/dev/zero of="#{path}" bs=1 count=0 seek=#{filesize} > /dev/null 2>&1`
-        raise "Unable to create file #{path}" if ::File.size(path) != filesize
+        unless allocated?(path)
+          `dd if=/dev/zero of="#{path}" bs=1 count=0 seek=#{filesize} > /dev/null 2>&1`
+          raise "Unable to allocate space for file #{path}" if ::File.size(path) != filesize
+        end
 
-        ::File.open(path, 'r+b').tap { |f| f.rewind }
+        @file = ::File.open(path, 'r+b')
+        @file.rewind
+      end
+
+      def file_io_synchronize(&block)
+        @file_io_mutex ||= Mutex.new
+        @file_io_mutex.synchronize(&block)
+      end
+
+      def allocated?(path)
+        ::File.exists?(path) and ::File.size(path) == filesize
+      end
+
+      # Writes a buffer in the local file, starting from the start-n byte.
+      def write_chunk(start, buffer)
+        file_io_synchronize do
+          @file.seek(start)
+          @file.write(buffer)
+        end
+      end
+
+      def read_chunk(start, size)
+        file_io_synchronize do
+          @file.seek(start)
+          data = @file.read(size)
+          @file.seek(start)
+          return (data == "\x0"*size) ? nil : data
+        end
       end
 
       # Downloads a part of the remote file, starting from the start-n byte
@@ -19,52 +46,65 @@ module Rmega
       def download_chunk(start, size)
         stop = start + size - 1
         url = "#{storage_url}/#{start}-#{stop}"
-        HTTPClient.new.get_content(url)
+
+        survive do
+          data = http_get_content(url)
+          raise("Unexpected data length") if data.size != size
+          return data
+        end
       end
 
-      # Writes a buffer in the local file, starting from the start-n byte.
-      def write_chunk(file, start, buffer)
-        file.seek(start)
-        file.write(buffer)
+      def decrypt_chunk(start, data)
+        iv = Utils.str_to_a32(@node_key.ctr_nonce) + [(start/0x1000000000) >> 0, (start/0x10) >> 0]
+        return aes_ctr_decrypt(@node_key.aes_key, data,  Utils.a32_to_str(iv))
       end
 
-      def decrypt_chunk(start, encrypted_buffer)
-        k = decrypted_file_key
-        nonce = [k[4], k[5], (start/0x1000000000) >> 0, (start/0x10) >> 0]
-        decrypt_key = [k[0] ^ k[4], k[1] ^ k[5], k[2] ^ k[6], k[3] ^ k[7]]
-        Crypto::AesCtr.decrypt(decrypt_key, nonce, encrypted_buffer)[:data]
+      def calculate_chunck_mac(data)
+        mac_iv = @node_key.ctr_nonce * 2
+        return aes_cbc_mac(@node_key.aes_key, data, mac_iv)
       end
 
       def download(path)
         path = ::File.expand_path(path)
         path = Dir.exists?(path) ? ::File.join(path, name) : path
 
-        logger.info "Download #{name} (#{filesize} bytes) => #{path}"
-
+        progress = Progress.new(filesize, caption: 'Download')
         pool = Pool.new
-        write_mutex = Mutex.new
-        file = allocate(path)
 
-        progress = Progress.new(total: filesize, caption: 'Download')
+        @resumed_download = allocated?(path)
+        allocate(path)
+        @node_key = NodeKey.load(decrypted_file_key)
 
-        Utils.chunks(filesize).each do |start, size|
-          pool.defer do
-            encrypted_buffer = download_chunk(start, size)
+        chunk_macs = {}
 
-            write_mutex.synchronize do
-              clean_buffer = decrypt_chunk(start, encrypted_buffer)
+        each_chunk do |start, size|
+          pool.process do
+            data = @resumed_download ? read_chunk(start, size) : nil
+
+            if data
+              chunk_macs[start] = calculate_chunck_mac(data)
+              progress.increment(size, real: false)
+            else
+              data = decrypt_chunk(start, download_chunk(start, size))
+              chunk_macs[start] = calculate_chunck_mac(data)
+              write_chunk(start, data)
               progress.increment(size)
-              write_chunk(file, start, clean_buffer)
             end
           end
         end
 
         # waits for the last running threads to finish
-        pool.wait_done
+        pool.shutdown
 
-        file.flush
+        file_mac = aes_cbc_mac(@node_key.aes_key, chunk_macs.sort.map(&:last).join, "\x0"*16)
+
+        if Utils.compact_to_8_bytes(file_mac) != @node_key.meta_mac
+          raise("Checksum failed. File corrupted?")
+        end
+
+        return nil
       ensure
-        file.close rescue nil
+        @file.close rescue nil
       end
     end
   end

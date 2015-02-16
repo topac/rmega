@@ -1,18 +1,22 @@
-require 'rmega/utils'
-require 'rmega/nodes/uploadable'
-require 'rmega/crypto/crypto'
-
 module Rmega
   module Nodes
     module Expandable
       include Uploadable
 
       def create_folder(name)
-        key = Crypto.random_key
-        encrypted_attributes = Utils.a32_to_base64 Crypto.encrypt_attributes(key[0..3], {n: name.strip})
-        encrypted_key = Utils.a32_to_base64 Crypto.encrypt_key(session.master_key, key)
-        n = [{h: 'xxxxxxxx', t: 1, a: encrypted_attributes, k: encrypted_key}]
-        data = session.request a: 'p', t: handle, n: n
+        key = OpenSSL::Random.random_bytes(24) #128 bit key + 64 bit nonce
+
+        # encrypt attributes
+        attributes_str = "MEGA"
+        attributes_str << {n: name.strip}.to_json
+        attributes_str << ("\x00" * (16 - (attributes_str.size % 16)))
+        encrypted_attributes = aes_cbc_encrypt(key[0..15], attributes_str)
+
+        # Encrypt node key
+        encrypted_key = aes_ecb_encrypt(session.master_key, key[0..15])
+
+        n = [{h: 'xxxxxxxx', t: 1, a: Utils.base64urlencode(encrypted_attributes), k: Utils.base64urlencode(encrypted_key)}]
+        data = session.request(a: 'p', t: handle, n: n)
         Folder.new(session, data['f'][0])
       end
 

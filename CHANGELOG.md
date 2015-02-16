@@ -1,3 +1,16 @@
+## 0.2.0
+
+### New Features
+* resumable downloads
+* rmega-dl command
+* cbc-mac verification (download)
+* handle network errors without interrupting downloads/uploads
+
+### Changes
+* `RequestError` class was removed
+* Upload now returns the node `handle`
+* `Storage#download` moved to `Rmega#download`
+
 ## 0.1.7
 
 * \#9 Fixed decryption of nodes shared by you to others

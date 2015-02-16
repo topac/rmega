@@ -1,8 +1,8 @@
-require 'rmega/nodes/factory'
-
 module Rmega
   class Storage
+    include NotInspectable
     include Loggable
+    include Crypto
 
     attr_reader :session
 
@@ -52,15 +52,11 @@ module Rmega
       @root ||= nodes.find { |n| n.type == :root }
     end
 
-    def download(public_url, path)
-      Nodes::Factory.build_from_url(session, public_url).download(path)
-    end
-
     private
 
     def store_shared_keys(list)
       list.each do |hash|
-        shared_keys[hash['h']] = Crypto.decrypt_key(master_key, Utils.base64_to_a32(hash['k']))
+        shared_keys[hash['h']] = aes_ecb_decrypt(master_key, Utils.base64urldecode(hash['k']))
       end
     end
   end

@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'yaml'
 
 def account_file_path
   File.join File.dirname(__FILE__), 'integration/rmega_account.yml'
@@ -18,10 +17,16 @@ def login
 end
 
 def temp_folder
-  '/tmp/.rmega_spec'
+  Dir.tmpdir
 end
 
 RSpec.configure do |config|
-  config.before(:all) { FileUtils.mkdir_p(temp_folder) }
-  config.after(:all) { FileUtils.rm_rf(temp_folder) }
+  config.before(:all) do
+    Rmega.options.show_progress = false
+    FileUtils.mkdir_p(temp_folder)
+  end
+
+  config.after(:all) do
+    FileUtils.rm_rf(temp_folder)
+  end
 end

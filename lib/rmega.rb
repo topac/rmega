@@ -1,10 +1,44 @@
+require 'thread'
+require 'ostruct'
+require 'logger'
+require 'uri'
+require 'net/http'
+require 'base64'
+require 'openssl'
+require 'digest/md5'
+
 require 'active_support/json'
+require 'active_support/concern'
 require 'active_support/core_ext/module/delegation'
-require 'active_support/core_ext/string/inflections'
-require 'httpclient'
+
 require 'rmega/version'
+require 'rmega/loggable'
 require 'rmega/options'
+require 'rmega/not_inspectable'
+require 'rmega/errors'
+require 'rmega/api_response'
+require 'rmega/utils'
+require 'rmega/net'
+require 'rmega/pool'
+require 'rmega/progress'
+require 'rmega/crypto'
 require 'rmega/session'
+require 'rmega/storage'
+require 'rmega/nodes/factory'
+
+# Used only in specs
+require 'yaml'
+require 'tmpdir'
+require 'fileutils'
 
 module Rmega
+  def self.login(email, password)
+    Session.new.login(email, password).storage
+  end
+
+  def self.download(public_url, path = Dir.pwd)
+    session = Session.new
+    node = Nodes::Factory.build(session, public_url)
+    return node.download(path)
+  end
 end

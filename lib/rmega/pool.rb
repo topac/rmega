@@ -1,18 +1,20 @@
-require 'thread'
-
 module Rmega
   class Pool
-    MAX = 4
+    include Options
 
-    def initialize(max = MAX)
-      Thread.abort_on_exception = true
+    def initialize
+      threads_raises_exceptions
 
       @mutex = Mutex.new
       @resource = ConditionVariable.new
-      @max = max || MAX
+      @max = options.thread_pool_size
 
       @running = []
       @queue = []
+    end
+
+    def threads_raises_exceptions
+      Thread.abort_on_exception = true
     end
 
     def defer(&block)
@@ -20,9 +22,14 @@ module Rmega
       process_queue
     end
 
+    alias :process :defer
+
     def wait_done
+      return if done?
       synchronize { @resource.wait(@mutex) }
     end
+
+    alias :shutdown :wait_done
 
     private
 
@@ -47,10 +54,14 @@ module Rmega
       synchronize { @resource.signal }
     end
 
+    def thread_terminated
+      synchronize { @running.reject! { |thread| thread == Thread.current } }
+    end
+
     def thread_proc(&block)
       Proc.new do
         block.call
-        @running.reject! { |thread| thread == Thread.current }
+        thread_terminated
         process_queue
         signal_done if done?
       end
