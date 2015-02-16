@@ -5,14 +5,14 @@ describe 'Login' do
   if account_file_exists?
 
     context 'when email and password are correct' do
-      it 'returns a Storage object' do
-        expect(login).to respond_to :nodes
+      it 'does not raise erorrs' do
+        expect { login }.not_to raise_error
       end
     end
 
     context 'when email and password are invalid' do
       it 'raises an error' do
-        expect { Rmega.login('a@apple.com', 'b') }.to raise_error(Rmega::Errors::ServerError)
+        expect { Rmega.login('foo', 'bar') }.to raise_error(Rmega::ServerError)
       end
     end
   end

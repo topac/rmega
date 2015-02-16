@@ -49,6 +49,7 @@ describe 'Folders operations' do
         expect(find_folder(@sub_folder_name).delete).to eql 0
       end
 
+      # todo: i see this failing a couple of times
       it 'deletes the folder' do
         expect(find_folder(@name).delete).to eql 0
       end

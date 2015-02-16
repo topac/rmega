@@ -1,8 +1,6 @@
 module Rmega
   module Crypto
     module Rsa
-      extend self
-
       def powm(b, p, m)
         if p == 1
           b % m
@@ -14,7 +12,7 @@ module Rmega
         end
       end
 
-      def decrypt(m, pqdu)
+      def rsa_decrypt(m, pqdu)
         p, q, d, u = pqdu
         if p && q && u
           m1 = powm(m, d % (p - 1), p)

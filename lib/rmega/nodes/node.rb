@@ -1,17 +1,16 @@
-require 'rmega/loggable'
-require 'rmega/utils'
-require 'rmega/crypto/crypto'
-require 'rmega/nodes/traversable'
-
 module Rmega
   module Nodes
     class Node
+      include NotInspectable
       include Loggable
       include Traversable
+      include Crypto
 
       attr_reader :data, :session
 
-      delegate :storage, :request, :shared_keys, :rsa_privk, :to => :session
+      delegate :request, :shared_keys, :rsa_privk, :master_key, :storage, :to => :session
+
+      TYPES = {0 => :file, 1 => :folder, 2 => :root, 3 => :inbox, 4 => :trash}
 
       def initialize(session, data)
         @session = session
@@ -19,14 +18,7 @@ module Rmega
       end
 
       def public_url
-        @public_url ||= begin
-          b64_dec_key = Utils.a32_to_base64(decrypted_file_key[0..7])
-          "https://mega.co.nz/#!#{public_handle}!#{b64_dec_key}"
-        end
-      end
-
-      def public_url=(url)
-        @public_url = url
+        @public_url ||= "https://mega.co.nz/#!#{public_handle}!#{Utils.base64urlencode(decrypted_file_key)}"
       end
 
       def public_handle
@@ -51,13 +43,14 @@ module Rmega
         pairs = data['k'].split('/')
         pairs.inject({}) do |hash, pair|
           h, k = pair.split(':')
-          hash[h] = k
+          hash[h] = Utils.base64urldecode(k)
           hash
         end
       end
 
       def file_key
-        file_keys.values.first
+        k = file_keys.values.first
+        return k ? k : nil
       end
 
       def shared_root?
@@ -75,37 +68,65 @@ module Rmega
         shared_key = if sk.size > 22
           # Decrypt sk
           sk = Utils.base64_mpi_to_bn(sk)
-          sk = Rmega::Crypto::Rsa.decrypt(sk, rsa_privk).to_s(16)
-          sk = '0' + sk if sk.length % 2 > 0
-          Utils.str_to_a32(Utils.hexstr_to_bstr(sk)[0..15])
+          sk = rsa_decrypt(sk, rsa_privk)
+          sk = sk.to_s(16)
+          sk = '0' + sk if sk.size % 2 > 0
+          Utils.hexstr_to_bstr(sk)[0..15]
         else
-          Crypto.decrypt_key session.master_key, Utils.base64_to_a32(data['sk'])
+          aes_ecb_decrypt(master_key, Utils.base64urldecode(sk))
         end
 
         shared_keys[handle] = shared_key
         [handle, shared_key]
       end
 
+      def self.each_chunk(size, &block)
+        start, p = 0, 0
+
+        return if size <= 0
+
+        loop do
+          offset = p < 8 ? (131072 * (p += 1)) : 1048576
+          next_start = offset + start
+
+          if next_start >= size
+            yield(start, size - start)
+            break
+          else
+            yield(start, offset)
+            start = next_start
+          end
+        end
+      end
+
+      def each_chunk(&block)
+        self.class.each_chunk(filesize, &block)
+      end
+
       def decrypted_file_key
         h, shared_key = *process_shared_key
 
         if shared_key
-          Crypto.decrypt_key(shared_key, Utils.base64_to_a32(file_keys[h]))
+          aes_ecb_decrypt(shared_key, file_keys[h])
         elsif file_key
-          Crypto.decrypt_key(session.master_key, Utils.base64_to_a32(file_key))
+          aes_ecb_decrypt(master_key, file_key)
         else
-          Utils.base64_to_a32(public_url.split('!').last)
+          Utils.base64urldecode(public_url.split('!').last)
         end
       end
 
       def attributes
         encrypted = data['a'] || data['at']
         return if !encrypted or encrypted.empty?
-        Crypto.decrypt_attributes(decrypted_file_key, encrypted)
+        node_key = NodeKey.load(decrypted_file_key)
+        encrypted = Utils.base64urldecode(encrypted)
+        encrypted.strip! if encrypted.size % 16 != 0 # Fix possible errors
+        json = aes_cbc_decrypt(node_key.aes_key, encrypted)
+        JSON.parse json.gsub(/^MEGA/, '').rstrip
       end
 
       def type
-        Factory.type(data['t'])
+        TYPES[data['t']]
       end
     end
   end

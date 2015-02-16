@@ -1,7 +1,3 @@
-require 'rmega/nodes/node'
-require 'rmega/nodes/deletable'
-require 'rmega/nodes/downloadable'
-
 module Rmega
   module Nodes
     class File < Node

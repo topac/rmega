@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+
+require 'rmega'
+require 'optparse'
+
+$cmd_line_options = {options: {}}
+
+if ARGV.empty?
+  ARGV << '--help'
+else
+  $cmd_line_options[:url] = ARGV[0]
+end
+
+OptionParser.new do |opts|
+  opts.banner = "Usage:\n"
+  opts.banner << "\t#{File.basename(__FILE__)} url [options]\n"
+  opts.banner << "Options:"
+
+  opts.on("-t NUM", "--thread_pool_size", "Number of threads to use") { |n|
+    $cmd_line_options[:options][:thread_pool_size] = n.to_i
+  }
+
+  opts.on("-o PATH", "--output", "Destination path") { |path|
+    $cmd_line_options[:output] = path
+  }
+
+  opts.on("-d", "--debug", "Debug mode") {
+    $cmd_line_options[:debug] = true
+  }
+
+  opts.on("-v", "--version", "Print the version number") {
+    puts Rmega::VERSION
+    exit
+  }
+end.parse!
+
+begin
+  $cmd_line_options[:options].each do |key, value|
+    Rmega.options.__send__("#{key}=", value)
+  end
+
+  Rmega.logger.level = ::Logger::DEBUG if $cmd_line_options[:debug]
+
+  session = Rmega::Session.new
+  node = Rmega::Nodes::Factory.build(session, $cmd_line_options[:url])
+  path = $cmd_line_options[:output] || Dir.pwd
+
+  node.download(path)
+rescue Interrupt
+  puts "\nInterrupted"
+rescue Exception => ex
+  if $cmd_line_options[:debug]
+    raise(ex)
+  else
+    puts "\nError: #{ex.message}"
+  end
+end
