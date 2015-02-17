@@ -34,7 +34,7 @@ module Rmega
     end
 
     def error?
-      unknown_error? or known_error?
+      unknown_error? or known_error? or temporary_error?
     end
 
     def ok?
@@ -44,10 +44,10 @@ module Rmega
     def as_error
       if unknown_error?
         return TemporaryServerError.new
-      elsif [-3, -6, -18, -19].include?(as_json)
-        return TemporaryServerError.new(ERRORS[as_json])
+      elsif temporary_error?
+        return TemporaryServerError.new(error_message)
       else
-        return ServerError.new(ERRORS[as_json])
+        return ServerError.new(error_message)
       end
     end
 
@@ -56,6 +56,14 @@ module Rmega
     end
 
     private
+
+    def error_message
+      ERRORS[as_json]
+    end
+
+    def temporary_error?
+      !body.empty? and [-3, -6, -18, -19].include?(as_json)
+    end
 
     def unknown_error?
       code == 500 or body.empty?
