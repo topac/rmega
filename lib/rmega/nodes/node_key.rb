@@ -29,7 +29,7 @@ module Rmega
 
       def self.compact(string)
         if string.size > 16
-          bytes = string.bytes
+          bytes = string.bytes.to_a
           return 16.times.inject([]) { |ary, i| ary[i] = bytes[i] ^ bytes[i+16]; ary }.map(&:chr).join
         else
           return string
