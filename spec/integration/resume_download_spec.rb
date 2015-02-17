@@ -38,6 +38,7 @@ module Rmega
       end
 
       loop do
+        # todo: i saw this failing becausa destination_file was missing :/
         node.file_io_synchronize { content = File.read(destination_file) }
         content.strip!
         expect(content.size).to be > 5_000_000
