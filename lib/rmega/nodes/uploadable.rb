@@ -21,8 +21,8 @@ module Rmega
       end
 
       def encrypt_chunck(start, clean_buffer, aes_key, nonce)
-        iv = Utils.str_to_a32(nonce) + [(start/0x1000000000) >> 0, (start/0x10) >> 0]
-        enc_data = aes_ctr_encrypt(aes_key, clean_buffer, Utils.a32_to_str(iv))
+        iv = nonce + [start/0x1000000000, start/0x10].pack('l>*')
+        enc_data = aes_ctr_encrypt(aes_key, clean_buffer, iv)
 
         # calculate mac
         mac_iv = nonce * 2

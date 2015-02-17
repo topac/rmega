@@ -55,8 +55,8 @@ module Rmega
       end
 
       def decrypt_chunk(start, data)
-        iv = Utils.str_to_a32(@node_key.ctr_nonce) + [(start/0x1000000000) >> 0, (start/0x10) >> 0]
-        return aes_ctr_decrypt(@node_key.aes_key, data,  Utils.a32_to_str(iv))
+        iv = @node_key.ctr_nonce + [start/0x1000000000, start/0x10].pack('l>*')
+        return aes_ctr_decrypt(@node_key.aes_key, data, iv)
       end
 
       def calculate_chunck_mac(data)
