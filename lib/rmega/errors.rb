@@ -2,6 +2,6 @@ module Rmega
   class ServerError < StandardError
   end
 
-  class TemporaryServerError < ServerError
+  class TemporaryServerError < StandardError
   end
 end
