@@ -51,7 +51,7 @@ module Rmega
     def compact_to_8_bytes(string)
       raise("Invalid data length") if string.size != 16
 
-      bytes = string.bytes
+      bytes = string.bytes.to_a
 
       return 8.times.inject([]) do |ary, i|
         n = i < 4 ? 0 : 4

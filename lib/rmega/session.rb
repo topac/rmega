@@ -67,7 +67,7 @@ module Rmega
     end
 
     def user_hash(aes_key, email)
-      s_bytes = email.bytes
+      s_bytes = email.bytes.to_a
       hash = Array.new(16, 0)
       s_bytes.size.times { |n| hash[n & 15] = hash[n & 15] ^ s_bytes[n] }
       hash = hash.pack('c*')
