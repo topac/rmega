@@ -2,25 +2,6 @@ module Rmega
   module Utils
     extend self
 
-    def str_to_a32(string)
-      size = (string.bytesize + 3) >> 2
-      string = string.ljust (string.bytesize + 3), "\x00"
-      string.unpack "l>#{size}"
-    end
-
-    def a32_to_str(a32, len = nil)
-      if len
-        b = []
-        len.times do |i|
-          # TODO: should be ((a32[i>>2] >>> (24-(i & 3)*8)) & 255)
-          b << (((a32[i>>2] || 0) >> (24-(i & 3)*8)) & 255)
-        end
-        b.pack 'C*'
-      else
-        a32.pack 'l>*'
-      end
-    end
-
     def base64urlencode(string)
       r = string.size % 3
       encoded = Base64.urlsafe_encode64(string)
