@@ -17,13 +17,13 @@ module Rmega
 
     def http_get_content(url)
       uri = URI(url)
-      req = ::Net::HTTP::Get.new(uri)
+      req = ::Net::HTTP::Get.new(uri.request_uri)
       return send_http_request(uri, req).body
     end
 
     def http_post(url, data)
       uri = URI(url)
-      req = ::Net::HTTP::Post.new(uri)
+      req = ::Net::HTTP::Post.new(uri.request_uri)
       req.body = data
       logger.debug("REQ POST #{url} #{cut_string(data)}")
       response = send_http_request(uri, req)
