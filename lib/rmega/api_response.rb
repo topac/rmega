@@ -57,12 +57,16 @@ module Rmega
 
     private
 
+    def as_error_code
+      @error_code ||= body.scan(/\A\[{0,1}(\-\d+)\]{0,1}\z/).flatten.first.to_i
+    end
+
     def error_message
-      ERRORS[as_json]
+      ERRORS[as_error_code]
     end
 
     def temporary_error?
-      !body.empty? and [-3, -6, -18, -19].include?(as_json)
+      known_error? and [-3, -6, -18, -19].include?(as_error_code)
     end
 
     def unknown_error?
@@ -70,7 +74,7 @@ module Rmega
     end
 
     def known_error?
-      as_json.respond_to?(:<) and as_json < 0
+      as_error_code < 0
     end
   end
 end
