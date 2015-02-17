@@ -43,7 +43,7 @@ module Rmega
     def apply_http_options(http)
       http.proxy_from_env = false if options.http_proxy_address
 
-      options.to_h.each do |name, value|
+      options.marshal_dump.each do |name, value|
         setter_method = name.to_s.split('http_')[1]
         http.__send__("#{setter_method}=", value) if setter_method and value
       end
