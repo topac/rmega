@@ -35,14 +35,17 @@ module Rmega
 
     def send_http_request(uri, req)
       http = ::Net::HTTP.new(uri.host, uri.port)
-      apply_http_options(http)
       http.use_ssl = true if uri.scheme == 'https'
+      apply_http_options(http)
       return http.request(req)
     end
 
     def apply_http_options(http)
-      options.http.each do |name, value|
-        http.__send__("#{name}=", value)
+      http.proxy_from_env = false if options.http_proxy_address
+
+      options.to_h.each do |name, value|
+        setter_method = name.to_s.split('http_')[1]
+        http.__send__("#{setter_method}=", value) if setter_method and value
       end
     end
 

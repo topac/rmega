@@ -20,8 +20,16 @@ OptionParser.new do |opts|
     $cmd_line_options[:options][:thread_pool_size] = n.to_i
   }
 
-  opts.on("-o PATH", "--output", "Destination path") { |path|
+  opts.on("-o PATH", "--output", "Local destination path") { |path|
     $cmd_line_options[:output] = path
+  }
+
+  opts.on("--proxy-addr ADDRESS", "Http proxy address") { |value|
+    $cmd_line_options[:options][:http_proxy_address] = value
+  }
+
+  opts.on("--proxy-port PORT", "Http proxy port") { |value|
+    $cmd_line_options[:options][:http_proxy_port] = value.to_i
   }
 
   opts.on("-d", "--debug", "Debug mode") {
