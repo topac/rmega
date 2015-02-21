@@ -27,7 +27,9 @@ module Rmega
     def nodes
       results = session.request(a: 'f', c: 1)
 
-      store_shared_keys(results['ok'] || [])
+      (results['ok'] || []).each do |hash|
+        shared_keys[hash['h']] ||= aes_ecb_decrypt(master_key, Utils.base64urldecode(hash['k']))
+      end
 
       (results['f'] || []).map do |node_data|
         node = Nodes::Factory.build(session, node_data)
@@ -50,14 +52,6 @@ module Rmega
 
     def root
       @root ||= nodes.find { |n| n.type == :root }
-    end
-
-    private
-
-    def store_shared_keys(list)
-      list.each do |hash|
-        shared_keys[hash['h']] = aes_ecb_decrypt(master_key, Utils.base64urldecode(hash['k']))
-      end
     end
   end
 end

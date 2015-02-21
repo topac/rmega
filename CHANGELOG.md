@@ -5,6 +5,7 @@
 * rmega-dl command
 * cbc-mac verification (download)
 * handle network errors without interrupting downloads/uploads
+* cache shared keys
 
 ### Changes
 * `RequestError` class was removed
