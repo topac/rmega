@@ -2,9 +2,10 @@ module Rmega
   class Session
     include NotInspectable
     include Loggable
-    include Crypto
     include Net
     include Options
+    include Crypto
+    extend Crypto
 
     attr_reader :request_id, :sid, :master_key, :shared_keys, :rsa_privk
 
@@ -34,6 +35,10 @@ module Rmega
     end
 
     def hash_password(password)
+      self.class.hash_password(password)
+    end
+
+    def self.hash_password(password)
       pwd = password.dup.force_encoding('BINARY')
       pkey = "\x93\xc4\x67\xe3\x7d\xb0\xc7\xa4\xd1\xbe\x3f\x81\x1\x52\xcb\x56".force_encoding('BINARY')
       null_byte = "\x0".force_encoding('BINARY').freeze
@@ -90,8 +95,36 @@ module Rmega
       @master_key = aes_cbc_decrypt(password_hash, Utils.base64urldecode(resp['k']))
       @rsa_privk = decrypt_rsa_private_key(resp['privk'])
       @sid = decrypt_session_id(resp['csid'])
+      @shared_keys = {}
 
       return self
+    end
+
+    def ephemeral_login(user_handle, password)
+      resp = request(a: 'us', user: user_handle)
+
+      password_hash = hash_password(password)
+
+      @master_key = aes_cbc_decrypt(password_hash, Utils.base64urldecode(resp['k']))
+      @sid = resp['tsid']
+      @rsa_privk = nil
+      @shared_keys = {}
+
+      return self
+    end
+
+    def self.ephemeral
+      master_key = OpenSSL::Random.random_bytes(16)
+      password = OpenSSL::Random.random_bytes(16)
+      password_hash = hash_password(password)
+      challenge = OpenSSL::Random.random_bytes(16)
+
+      session = new
+
+      user_handle = session.request(a: 'up', k: Utils.base64urlencode(aes_ecb_encrypt(password_hash, master_key)),
+        ts: Utils.base64urlencode(challenge + aes_ecb_encrypt(master_key, challenge)))
+
+      return session.ephemeral_login(user_handle, password)
     end
 
     def random_request_id
