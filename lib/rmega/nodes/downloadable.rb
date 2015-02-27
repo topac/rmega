@@ -2,6 +2,7 @@ module Rmega
   module Nodes
     module Downloadable
       include Net
+      include Options
 
       # Creates the local file allocating filesize-n bytes (of /dev/zero) for it.
       # Opens the local file to start writing from the beginning of it.
@@ -82,11 +83,11 @@ module Rmega
             data = @resumed_download ? read_chunk(start, size) : nil
 
             if data
-              chunk_macs[start] = calculate_chunck_mac(data)
+              chunk_macs[start] = calculate_chunck_mac(data) if options.file_integrity_check
               progress.increment(size, real: false)
             else
               data = decrypt_chunk(start, download_chunk(start, size))
-              chunk_macs[start] = calculate_chunck_mac(data)
+              chunk_macs[start] = calculate_chunck_mac(data) if options.file_integrity_check
               write_chunk(start, data)
               progress.increment(size)
             end
@@ -96,10 +97,12 @@ module Rmega
         # waits for the last running threads to finish
         pool.shutdown
 
-        file_mac = aes_cbc_mac(@node_key.aes_key, chunk_macs.sort.map(&:last).join, "\x0"*16)
+        if options.file_integrity_check
+          file_mac = aes_cbc_mac(@node_key.aes_key, chunk_macs.sort.map(&:last).join, "\x0"*16)
 
-        if Utils.compact_to_8_bytes(file_mac) != @node_key.meta_mac
-          raise("Checksum failed. File corrupted?")
+          if Utils.compact_to_8_bytes(file_mac) != @node_key.meta_mac
+            raise("Checksum failed. File corrupted?")
+          end
         end
 
         return nil
