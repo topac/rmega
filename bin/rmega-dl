@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 
 require 'rmega'
-require 'optparse'
+require 'rmega/cli'
 
-$cmd_line_options = {options: {}}
+include Rmega::CLI::Helpers
 
 if ARGV.empty?
   ARGV << '--help'
 else
-  $cmd_line_options[:url] = ARGV[0]
+  cli_options[:url] = ARGV[0]
 end
 
 OptionParser.new do |opts|
@@ -16,50 +16,36 @@ OptionParser.new do |opts|
   opts.banner << "\t#{File.basename(__FILE__)} url [options]\n"
   opts.banner << "Options:"
 
-  opts.on("-t NUM", "--thread_pool_size", "Number of threads to use") { |n|
-    $cmd_line_options[:options][:thread_pool_size] = n.to_i
-  }
-
   opts.on("-o PATH", "--output", "Local destination path") { |path|
-    $cmd_line_options[:output] = path
+    cli_options[:output] = path
   }
 
-  opts.on("--proxy-addr ADDRESS", "Http proxy address") { |value|
-    $cmd_line_options[:options][:http_proxy_address] = value
-  }
-
-  opts.on("--proxy-port PORT", "Http proxy port") { |value|
-    $cmd_line_options[:options][:http_proxy_port] = value.to_i
-  }
-
-  opts.on("-d", "--debug", "Debug mode") {
-    $cmd_line_options[:debug] = true
-  }
-
-  opts.on("-v", "--version", "Print the version number") {
-    puts Rmega::VERSION
-    exit
-  }
+  apply_opt_parser_options(opts)
 end.parse!
 
-begin
-  $cmd_line_options[:options].each do |key, value|
-    Rmega.options.__send__("#{key}=", value)
+rescue_errors_and_inerrupt do
+  session = Rmega::Session.new
+
+  urls = [cli_options[:url]]
+
+  unless mega_url?(cli_options[:url])
+    urls = scan_mega_urls(session.http_get_content(cli_options[:url])).uniq
+    raise("Nothing to download") if urls.empty?
   end
 
-  Rmega.logger.level = ::Logger::DEBUG if $cmd_line_options[:debug]
+  if cli_options[:user]
+    user = cli_options[:user]
+    pass = cli_options[:pass] ||= cli_prompt_password
 
-  session = Rmega::Session.new
-  node = Rmega::Nodes::Factory.build(session, $cmd_line_options[:url])
-  path = $cmd_line_options[:output] || Dir.pwd
+    session.login(user, pass)
+  end
 
-  node.download(path)
-rescue Interrupt
-  puts "\nInterrupted"
-rescue Exception => ex
-  if $cmd_line_options[:debug]
-    raise(ex)
-  else
-    puts "\nError: #{ex.message}"
+  urls.each_with_index do |url, index|
+    node = Rmega::Nodes::Factory.build(session, url)
+
+    puts "[#{index+1}/#{urls.count}] #{node.name}"
+
+    path = cli_options[:output] || Dir.pwd
+    node.download(path)
   end
 end

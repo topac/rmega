@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+require 'rmega'
+require 'rmega/cli'
+
+include Rmega::CLI::Helpers
+
+if ARGV.empty?
+  ARGV << '--help'
+else
+  cli_options[:path] = ARGV[0]
+end
+
+OptionParser.new do |opts|
+  opts.banner = "Usage:\n"
+  opts.banner << "\t#{File.basename(__FILE__)} path [options]\n"
+  opts.banner << "Options:"
+
+  apply_opt_parser_options(opts)
+end.parse!
+
+rescue_errors_and_inerrupt do
+  raise("File not found - #{cli_options[:path]}") unless File.exists?(cli_options[:path])
+
+  user = cli_options[:user] || raise("User email is required")
+  pass = cli_options[:pass] ||= cli_prompt_password
+
+  session = Rmega::Session.new.login(user, pass)
+  root = session.storage.root
+  root.upload(cli_options[:path])
+end
