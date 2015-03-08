@@ -6,14 +6,11 @@ module Rmega
       include Deletable
 
       def download(path)
+        path = ::File.join(path, self.name)
+        FileUtils.mkdir_p(path)
+
         children.each do |node|
-          if node.type == :file
-            node.download path
-          elsif node.type == :folder
-            subfolder = ::File.expand_path ::File.join(path, node.name)
-            Dir.mkdir(subfolder) unless Dir.exists?(subfolder)
-            node.download subfolder
-          end
+          node.download(path)
         end
 
         nil
