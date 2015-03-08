@@ -7,7 +7,8 @@ module Rmega
     include Crypto
     extend Crypto
 
-    attr_reader :request_id, :sid, :master_key, :shared_keys, :rsa_privk
+    attr_reader :request_id, :sid, :shared_keys, :rsa_privk
+    attr_accessor :master_key
 
     def initialize
       @request_id = random_request_id
@@ -131,14 +132,18 @@ module Rmega
       rand(1E7..1E9).to_i
     end
 
-    def request_url
-      "#{options.api_url}?id=#{@request_id}" + (@sid ? "&sid=#{@sid}" : "")
+    def request_url(params = {})
+      params = params.merge(sid: @sid) if @sid
+      params = params.to_a.map { |a| a.join("=") }.join("&")
+      params = "&#{params}" unless params.empty?
+
+      return "#{options.api_url}?id=#{@request_id}#{params}"
     end
 
-    def request(content)
+    def request(body, query_params = {})
       survive do
         @request_id += 1
-        api_response = APIResponse.new(http_post(request_url, [content].to_json))
+        api_response = APIResponse.new(http_post(request_url(query_params), [body].to_json))
         if api_response.ok?
           return(api_response.as_json)
         else

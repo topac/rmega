@@ -16,24 +16,37 @@ module Rmega
     module Factory
       extend self
 
-      def build(session, data)
-        if data.kind_of?(String)
-          return build_from_url(session, data)
-        else
-          klass = Nodes.const_get(Node::TYPES[data['t']].to_s.capitalize)
-          return klass.new(session, data)
-        end
+      URL_REGEXP = /mega\..+\/\#([A-Z0-9\_\-\!\=]+)/i
+
+      FOLDER_URL_REGEXP = /mega\..+\/\#\F([A-Z0-9\_\-\!\=]+)/i
+
+      def url?(string)
+        string.to_s =~ URL_REGEXP
       end
 
-      # TODO: support other node types than File
-      def build_from_url(session, url)
-        public_handle, key = url.strip.split('!')[1, 2]
-        raise "Invalid url or missing file key" unless key
-        data = session.request(a: 'g', g: 1, p: public_handle)
+      def build(session, data)
+        type = Node::TYPES[data['t']].to_s
+        return Nodes.const_get(type.capitalize).new(session, data)
+      end
 
-        node = Nodes::File.new(session, data)
+      def build_from_url(url, session = Session.new)
+        public_handle, key = url.strip.split('!')[1, 2]
+
+        raise "Invalid url or missing file key" unless key
+
+        node = if url =~ FOLDER_URL_REGEXP
+          nodes_data = session.request({a: 'f', c: 1, r: 1}, {n: public_handle})
+          session.master_key = Utils.base64urldecode(key)
+          session.storage.nodes = nodes_data['f'].map { |data| Nodes::Factory.build(session, data) }
+          session.storage.nodes[0]
+        else
+          data = session.request(a: 'g', g: 1, p: public_handle)
+          Nodes::File.new(session, data)
+        end
+
         node.instance_variable_set('@public_handle', public_handle)
         node.instance_variable_set('@public_url', url)
+
         return node
       end
     end

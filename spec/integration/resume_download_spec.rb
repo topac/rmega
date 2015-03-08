@@ -3,8 +3,6 @@ require 'integration_spec_helper'
 module Rmega
   describe 'Resumable download' do
 
-    let(:session) { Session.new }
-
     let(:download_url) { 'https://mega.co.nz/#!NYVkDaLD!BKyN5SRpOaEtGnTcwiAqcxmJc7p-k0IPWKAW-471KRE' }
 
     let(:destination_file) { "#{temp_folder}/temp.txt" }
@@ -15,7 +13,7 @@ module Rmega
     end
 
     it 'resume a download of a file' do
-      node = Nodes::Factory.build(session, download_url)
+      node = Nodes::Factory.build_from_url(download_url)
       content = nil
 
       thread = Thread.new do

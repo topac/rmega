@@ -24,26 +24,22 @@ OptionParser.new do |opts|
 end.parse!
 
 rescue_errors_and_inerrupt do
-  session = Rmega::Session.new
-
   urls = [cli_options[:url]]
 
   unless mega_url?(cli_options[:url])
-    urls = scan_mega_urls(session.http_get_content(cli_options[:url])).uniq
+    urls = scan_mega_urls(Session.new.http_get_content(cli_options[:url])).uniq
     raise("Nothing to download") if urls.empty?
   end
 
-  if cli_options[:user]
-    user = cli_options[:user]
-    pass = cli_options[:pass] ||= cli_prompt_password
-
-    session.login(user, pass)
-  end
-
   urls.each_with_index do |url, index|
-    node = Rmega::Nodes::Factory.build(session, url)
+    node = Rmega::Nodes::Factory.build_from_url(url)
 
-    puts "[#{index+1}/#{urls.count}] #{node.name}"
+    info = if node.type == :folder
+      stats = node.storage.stats
+      "(#{stats[:files]} file#{'s' if stats[:files] > 1}, #{humanize_bytes(stats[:size])})"
+    end
+
+    puts "[#{index+1}/#{urls.count}] #{node.name} #{info}"
 
     path = cli_options[:output] || Dir.pwd
     node.download(path)

@@ -20,11 +20,29 @@ module Rmega
       quota['mstrg']
     end
 
+    def stats
+      stats_hash = {files: 0, size: 0}
+
+      nodes.each do |n|
+        next unless n.type == :file
+        stats_hash[:files] += 1
+        stats_hash[:size] += n.filesize
+      end
+
+      return stats_hash
+    end
+
     def quota
       session.request(a: 'uq', strg: 1)
     end
 
+    def nodes=(list)
+      @nodes = list
+    end
+
     def nodes
+      return @nodes if @nodes
+
       results = session.request(a: 'f', c: 1)
 
       (results['ok'] || []).each do |hash|
@@ -38,12 +56,8 @@ module Rmega
       end
     end
 
-    def folders
-      list = nodes
-      root_handle = list.find { |node| node.type == :root }.handle
-      list.select do |node|
-        node.shared_root? || (node.type == :folder && node.parent_handle == root_handle)
-      end
+    def shared
+      nodes.select { |node| node.shared_root? }
     end
 
     def trash

@@ -18,16 +18,12 @@ module Rmega
         return password
       end
 
-      def mega_url_regexp
-        /mega\..+\/\#([A-Z0-9\_\-\!\=]+)/i
-      end
-
       def scan_mega_urls(text)
-        text.to_s.scan(mega_url_regexp).flatten.map { |s| "https://mega.co.nz/##{s}" }
+        text.to_s.scan(Nodes::Factory::URL_REGEXP).flatten.map { |s| "https://mega.co.nz/##{s}" }
       end
 
       def mega_url?(url)
-        url.to_s =~ mega_url_regexp
+        Nodes::Factory.url?(url)
       end
 
       def configuration_filepath
@@ -97,6 +93,10 @@ module Rmega
           puts Rmega::HOMEPAGE
           exit
         }
+      end
+
+      def humanize_bytes(*args)
+        Progress.humanize_bytes(*args)
       end
 
       def rescue_errors_and_inerrupt(&block)

@@ -4,7 +4,6 @@ describe 'File download' do
 
   context 'given a public mega url (a small file)' do
 
-    # A file called testfile.txt containting the string "helloworld!"
     let(:url) { 'https://mega.co.nz/#!MAkg2Iab!bc9Y2U6d93IlRRKVYpcC9hLZjS4G278OPdH6nTFPDNQ' }
 
     it 'downloads the related file' do
@@ -16,7 +15,6 @@ describe 'File download' do
 
   context 'given a public mega url (a big file)' do
 
-    # A file called testfile_big_15mb.txt containting the word "topac" repeated 3145728 times (~ 15mb)
     let(:url) { 'https://mega.co.nz/#!NYVkDaLD!BKyN5SRpOaEtGnTcwiAqcxmJc7p-k0IPWKAW-471KRE' }
 
     it 'downloads the related file' do

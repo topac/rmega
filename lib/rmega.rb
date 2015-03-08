@@ -37,8 +37,7 @@ module Rmega
   end
 
   def self.download(public_url, path = Dir.pwd)
-    session = Session.new
-    node = Nodes::Factory.build(session, public_url)
+    node = Nodes::Factory.build_from_url(public_url)
     return node.download(path)
   end
 end

@@ -21,12 +21,12 @@ module Rmega
       return unless show?
 
       message = @caption ? "[#{@caption}] " : ""
-      message << "#{humanize(@bytes)} of #{humanize(@total)}"
+      message << "#{humanize_bytes(@bytes)} of #{humanize_bytes(@total)}"
 
       if ended?
         message << ". Completed in #{elapsed_time} sec.\n"
       else
-        message << ", #{percentage}% @ #{humanize(speed, 1)}/s, #{options.thread_pool_size} threads"
+        message << ", #{percentage}% @ #{humanize_bytes(speed, 1)}/s, #{options.thread_pool_size} threads"
       end
 
       print_r(message)
@@ -74,7 +74,11 @@ module Rmega
       end
     end
 
-    def humanize(bytes, round = 2)
+    def humanize_bytes(*args)
+      self.class.humanize_bytes(*args)
+    end
+
+    def self.humanize_bytes(bytes, round = 2)
       units = ['bytes', 'kb', 'MB', 'GB', 'TB', 'PB']
       e = (bytes == 0 ? 0 : Math.log(bytes)) / Math.log(1024)
       value = bytes.to_f / (1024 ** e.floor)

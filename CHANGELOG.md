@@ -2,10 +2,12 @@
 
 ### New Features
 * resumable downloads
-* rmega-dl command
+* rmega-dl command (with folder download support)
+* rmega-up command
 * cbc-mac verification (download)
 * handle network errors without interrupting downloads/uploads
 * cache shared keys
+* `Storage#folders` has been removed (use `Storage#shared` that returns only shared folder nodes)
 
 ### Changes
 * `RequestError` class was removed
