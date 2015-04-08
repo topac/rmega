@@ -11,7 +11,7 @@ describe 'Folder download' do
       list = Dir["#{temp_folder}/test_folder/**/*"].map do |p|
         p.gsub("#{temp_folder}/test_folder/", "")
       end
-      expect(list).to eq(["a.txt", "b.txt", "c", "c/c.txt"])
+      expect(list.sort).to eq(["a.txt", "b.txt", "c", "c/c.txt"])
     end
   end
 end
