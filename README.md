@@ -1,27 +1,37 @@
 # Rmega
 
-A ruby library for MEGA ([https://mega.co.nz/](https://mega.co.nz/))  
-Requirements: Ruby 1.9.3+ and OpenSSL 0.9.8r+
-
-
-This is the result of a reverse engineering of the MEGA javascript code.  
-
+A Ruby library for <img src="https://mega.co.nz/favicon.ico" alt=""/> **MEGA** ([https://mega.co.nz/](https://mega.co.nz/)).
+Works on Linux and OSX with Ruby 1.9.3+ (up to Ruby 2.2+)
 
 ## Installation
 
-  **Rmega** is distributed via [rubygems.org](https://rubygems.org/).  
-  If you have ruby installed system wide, just type `gem install rmega`.
+  [Rmega](https://rubygems.org/gems/rmega) is distributed via [rubygems](https://rubygems.org/gems/rmega). If you have Ruby installed system wide, just type
 
-## Usage
-
-```ruby
-require 'rmega'
 ```
+  gem install rmega
+```
+
+## Command line usage
+
+Since version 0.2.0 you can use the commands `rmega-dl` and `rmega-up` to easily downlaod and upload files to MEGA.
+
+ * Downloads are resumable
+ * HTTP proxy support
+
+<img src="https://i.imgur.com/VVl55wj.gif"/>
+
+*Pro tips:* 
+
+* Streaming: you can use a video player (e.g. VLC) to play videos while downloading them.
+* Super privacy: you can use it combined with [torsocks](https://github.com/dgoulet/torsocks/) to download and upload files through the Tor network (very slow).
+
+## DSL usage
 
 ### Login
 
 ```ruby
-storage = Rmega.login('your@email.com', 'your_p4ssw0rd')
+require "rmega"
+storage = Rmega.login("your@email.com", "your_passoword")
 ```
 
 ### Browsing
