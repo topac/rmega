@@ -31,7 +31,7 @@ Since version 0.2.0 you can use the commands `rmega-dl` and `rmega-up` to easily
 
 ```ruby
 require "rmega"
-storage = Rmega.login("your@email.com", "your_passoword")
+storage = Rmega.login("your@email.com", "your_password")
 ```
 
 ### Browsing
