@@ -13,7 +13,7 @@ Works on Linux and OSX with Ruby 1.9.3+ (up to Ruby 2.2+)
 
 ## Command line usage
 
-Since version 0.2.0 you can use the commands `rmega-dl` and `rmega-up` to easily downlaod and upload files to MEGA.
+Since version 0.2.0 you can use the commands `rmega-dl` and `rmega-up` to easily download and upload files to MEGA.
 
  * Downloads are resumable
  * HTTP proxy support
