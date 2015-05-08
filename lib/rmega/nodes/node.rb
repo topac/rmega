@@ -122,7 +122,10 @@ module Rmega
         encrypted = Utils.base64urldecode(encrypted)
         encrypted.strip! if encrypted.size % 16 != 0 # Fix possible errors
         json = aes_cbc_decrypt(node_key.aes_key, encrypted)
-        JSON.parse json.gsub(/^MEGA/, '').rstrip
+        # Remove invalid bytes at the end of the string
+        json.strip!
+        json.gsub!(/^MEGA\{(.+)\}.*/, '{\1}')
+        return JSON.parse(json)
       end
 
       def type
