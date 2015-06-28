@@ -25,26 +25,14 @@ module Rmega
         node.file_io_synchronize { content = File.read(destination_file) }
         content.strip!
         break if content.size > 5_000_000
-        sleep(1)
+        sleep(0.5)
       end
 
       thread.kill
-      sleep(1)
 
-      thread = Thread.new do
-        node.download(destination_file)
-      end
+      sleep(2)
 
-      loop do
-        # todo: i saw this failing becausa destination_file was missing :/
-        node.file_io_synchronize { content = File.read(destination_file) }
-        content.strip!
-        expect(content.size).to be > 5_000_000
-        break if content.size >= 15_728_640
-        sleep(1)
-      end
-
-      thread.join
+      node.download(destination_file)
 
       md5 = Digest::MD5.file(destination_file).hexdigest
       expect(md5).to eq("0451dc82ac003dbef703342e40a1b8f6")
