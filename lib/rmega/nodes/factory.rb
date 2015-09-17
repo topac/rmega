@@ -16,9 +16,9 @@ module Rmega
     module Factory
       extend self
 
-      URL_REGEXP = /mega\..+\/\#([A-Z0-9\_\-\!\=]+)/i
+      URL_REGEXP = /(http.:\/\/[w\.]*mega\.[a-z\.]+\/\#[A-Z0-9\_\-\!\=]+)/i
 
-      FOLDER_URL_REGEXP = /mega\..+\/\#\F([A-Z0-9\_\-\!\=]+)/i
+      FOLDER_URL_REGEXP = /\#\F/
 
       def url?(string)
         string.to_s =~ URL_REGEXP
