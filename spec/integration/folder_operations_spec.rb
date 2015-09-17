@@ -8,7 +8,7 @@ describe 'Folders operations' do
       @storage = login
     end
 
-    let(:name) { "test_folder" }
+    let(:name) { "test_folder3" }
 
     context 'when #create_folder is called on a node' do
 
