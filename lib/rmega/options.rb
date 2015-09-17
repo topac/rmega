@@ -19,7 +19,9 @@ module Rmega
   end
 
   module Options
-    extend ActiveSupport::Concern
+    def self.included(base)
+      base.__send__(:extend, ClassMethods)
+    end
 
     def options
       Rmega.options

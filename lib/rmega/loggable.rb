@@ -8,7 +8,9 @@ module Rmega
   end
 
   module Loggable
-    extend ActiveSupport::Concern
+    def self.included(base)
+      base.__send__(:extend, ClassMethods)
+    end
 
     def logger
       Rmega.logger
