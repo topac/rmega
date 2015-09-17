@@ -55,9 +55,9 @@ describe "rmega-up" do
 
     context "when specifying a remote folder" do
       it "uploads a file into that folder" do
-        call("#{filepath} -u #{account['email']} --pass #{account['password']} -r test_folder")
+        call("#{filepath} -u #{account['email']} --pass #{account['password']} -r test_folder2")
         storage = login
-        node = storage.root.folders.find { |f| f.name == "test_folder" }
+        node = storage.root.folders.find { |f| f.name == "test_folder2" }
         node = node.files.find { |f| f.name == filename }
         node.delete if node
         expect(node).not_to be_nil
