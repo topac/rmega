@@ -8,7 +8,10 @@ module Rmega
 
       attr_reader :data, :session
 
-      delegate :request, :shared_keys, :rsa_privk, :master_key, :storage, :to => :session
+      # Delegate to :session
+      [:request, :shared_keys, :rsa_privk, :master_key, :storage].each do |name|
+        __send__(:define_method, name) { |*args| session.__send__(name, *args) }
+      end
 
       TYPES = {0 => :file, 1 => :folder, 2 => :root, 3 => :inbox, 4 => :trash}
 

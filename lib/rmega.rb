@@ -6,10 +6,12 @@ require 'net/http'
 require 'base64'
 require 'openssl'
 require 'digest/md5'
+require 'json'
 
-require 'active_support/json'
-require 'active_support/concern'
-require 'active_support/core_ext/module/delegation'
+# Used only in specs
+require 'yaml'
+require 'tmpdir'
+require 'fileutils'
 
 require 'rmega/version'
 require 'rmega/loggable'
@@ -25,11 +27,6 @@ require 'rmega/crypto'
 require 'rmega/session'
 require 'rmega/storage'
 require 'rmega/nodes/factory'
-
-# Used only in specs
-require 'yaml'
-require 'tmpdir'
-require 'fileutils'
 
 module Rmega
   def self.login(email, password)

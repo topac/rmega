@@ -6,7 +6,10 @@ module Rmega
 
     attr_reader :session
 
-    delegate :master_key, :shared_keys, to: :session
+    # Delegate to :session
+    [:master_key, :shared_keys].each do |name|
+      __send__(:define_method, name) { |*args| session.__send__(name, *args) }
+    end
 
     def initialize(session)
       @session = session
