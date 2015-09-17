@@ -14,6 +14,11 @@ end
 OptionParser.new do |opts|
   opts.banner = "Usage:\n"
   opts.banner << "\t#{File.basename(__FILE__)} url [options]\n"
+  opts.banner << "\t#{File.basename(__FILE__)} path [options]\n"
+  opts.banner << "Examples:\n"
+  opts.banner << "\t#{File.basename(__FILE__)} 'https://mega.nz/#!aBkHBKLX!n4kqzbJooqc3o_s96PZjN1tEJzQ4QQwskHf7YqKa'\n"
+  opts.banner << "\t#{File.basename(__FILE__)} https://www.reddit.com/r/megalinks\n"
+  opts.banner << "\t#{File.basename(__FILE__)} /remote/docs/myfile.txt -u email@localhost\n"
   opts.banner << "Options:"
 
   opts.on("-o PATH", "--output", "Local destination path") { |path|
@@ -23,25 +28,26 @@ OptionParser.new do |opts|
   apply_opt_parser_options(opts)
 end.parse!
 
-rescue_errors_and_inerrupt do
-  urls = [cli_options[:url]]
+cli_rescue do
+  if cli_options[:user]
+    session = Rmega::Session.new.login(cli_options[:user], cli_options[:pass] || cli_prompt_password)
+    root = session.storage.root
+    node = traverse_storage(root, cli_options[:url].dup)
+    raise("Node not found - #{cli_options[:url]}") unless node
+    node.download(cli_options[:output] || Dir.pwd)
+  else
+    urls = [cli_options[:url]]
 
-  unless mega_url?(cli_options[:url])
-    urls = scan_mega_urls(Session.new.http_get_content(cli_options[:url])).uniq
-    raise("Nothing to download") if urls.empty?
-  end
-
-  urls.each_with_index do |url, index|
-    node = Rmega::Nodes::Factory.build_from_url(url)
-
-    info = if node.type == :folder
-      stats = node.storage.stats
-      "(#{stats[:files]} file#{'s' if stats[:files] > 1}, #{humanize_bytes(stats[:size])})"
+    unless mega_url?(cli_options[:url])
+      html = Rmega::Session.new.http_get_content(cli_options[:url])
+      urls = html.scan(Rmega::Nodes::Factory::URL_REGEXP).flatten.uniq
+      raise("Nothing to download") if urls.empty?
     end
 
-    puts "[#{index+1}/#{urls.count}] #{node.name} #{info}"
-
-    path = cli_options[:output] || Dir.pwd
-    node.download(path)
+    urls.each_with_index do |url, index|
+      node = Rmega::Nodes::Factory.build_from_url(url)
+      print "[#{index+1}/#{urls.size}] " if urls.size > 1
+      node.download(cli_options[:output] || Dir.pwd)
+    end
   end
 end

@@ -69,7 +69,7 @@ module Rmega
         path = ::File.expand_path(path)
         path = Dir.exists?(path) ? ::File.join(path, name) : path
 
-        progress = Progress.new(filesize, caption: 'Download')
+        progress = Progress.new(filesize, caption: 'Download', filename: self.name)
         pool = Pool.new
 
         @resumed_download = allocated?(path)

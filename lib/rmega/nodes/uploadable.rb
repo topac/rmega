@@ -46,7 +46,7 @@ module Rmega
         pool = Pool.new
         read_mutex = Mutex.new
 
-        progress = Progress.new(filesize, caption: 'Upload')
+        progress = Progress.new(filesize, caption: 'Upload', filename: ::File.basename(path))
 
         chunk_macs = {}
 

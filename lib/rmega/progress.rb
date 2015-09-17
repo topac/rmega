@@ -10,6 +10,10 @@ module Rmega
       @mutex = Mutex.new
       @start_time = Time.now
 
+      if show? and options[:filename]
+        puts options[:filename]
+      end
+
       show
     end
 
