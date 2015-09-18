@@ -2,7 +2,7 @@ require 'integration_spec_helper'
 
 describe 'Login' do
 
-  if account_file_exists?
+  if account?
 
     context 'when email and password are correct' do
       it 'does not raise erorrs' do

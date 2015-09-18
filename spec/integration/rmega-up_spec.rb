@@ -35,7 +35,7 @@ describe "rmega-up" do
     end
   end
 
-  if account_file_exists?
+  if account?
     context "when the remote path is missing" do
       it "fails" do
         resp = call("#{filepath} -u #{account['email']} --pass #{account['password']} -r /foobar")

@@ -2,7 +2,7 @@ require 'integration_spec_helper'
 
 describe 'File integrity' do
 
-  if account_file_exists?
+  if account?
 
     before(:all) do
       @storage = login

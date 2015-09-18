@@ -2,15 +2,15 @@ require 'integration_spec_helper'
 
 describe 'Folders operations' do
 
-  if account_file_exists?
+  if account?
 
     before(:all) do
       @storage = login
     end
 
-    let(:name) { "test_folder3" }
-
     context 'when #create_folder is called on a node' do
+
+      let(:name) { "testfolder_#{SecureRandom.hex(5)}" }
 
       before do
         @folder = @storage.root.create_folder(name)
@@ -27,6 +27,9 @@ describe 'Folders operations' do
     end
 
     context 'searching for a folder by its handle' do
+
+      let(:name) { "testfolder_#{SecureRandom.hex(5)}" }
+
       before do
         @folder = @storage.root.create_folder(name)
       end
@@ -42,6 +45,9 @@ describe 'Folders operations' do
     end
 
     context 'when #create_folder under created folder' do
+
+      let(:name) { "testfolder_#{SecureRandom.hex(5)}" }
+
       before do
         @folder = @storage.root.create_folder(name)
         @sub_folder = @folder.create_folder(name)
