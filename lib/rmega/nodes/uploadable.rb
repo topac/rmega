@@ -69,10 +69,8 @@ module Rmega
         pool.shutdown
 
         # encrypt attributes
-        attributes_str = "MEGA"
-        attributes_str << {n: ::File.basename(path)}.to_json
-        attributes_str << ("\x00" * (16 - (attributes_str.size % 16)))
-        encrypted_attributes = aes_cbc_encrypt(rnd_node_key.aes_key, attributes_str)
+        _attr = serialize_attributes(:n => ::File.basename(path))
+        _attr = aes_cbc_encrypt(rnd_node_key.aes_key, _attr)
 
         # Calculate meta_mac
         file_mac = aes_cbc_mac(rnd_node_key.aes_key, chunk_macs.sort.map(&:last).join, "\x0"*16)
@@ -80,7 +78,7 @@ module Rmega
         encrypted_key = aes_ecb_encrypt(session.master_key, rnd_node_key.generate)
 
         resp = request(a: 'p', t: handle, n: [
-          {h: file_handle, t: 0, a: Utils.base64urlencode(encrypted_attributes), k: Utils.base64urlencode(encrypted_key)}
+          {h: file_handle, t: 0, a: Utils.base64urlencode(_attr), k: Utils.base64urlencode(encrypted_key)}
         ])
 
         return Nodes::Factory.build(session, resp['f'][0])
