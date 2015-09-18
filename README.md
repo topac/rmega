@@ -1,11 +1,9 @@
 # Rmega
 
-A Ruby library for <img src="https://mega.co.nz/favicon.ico" alt=""/> **MEGA** ([https://mega.co.nz/](https://mega.co.nz/)).
-Works on Linux and OSX with Ruby 1.9.3+ (up to Ruby 2.2+)
+Pure ruby library for <img src="https://mega.co.nz/favicon.ico" alt=""/> **MEGA** [https://mega.nz/](https://mega.nz/).  
+Works on Linux and OSX with Ruby 1.9.3+.
 
 ## Installation
-
-  [Rmega](https://rubygems.org/gems/rmega) is distributed via [rubygems](https://rubygems.org/gems/rmega). If you have Ruby installed system wide, just type
 
 ```
   gem install rmega
@@ -17,6 +15,7 @@ Since version 0.2.0 you can use the commands `rmega-dl` and `rmega-up` to easily
 
  * Downloads are resumable
  * HTTP proxy support
+ * See the CHANGELOG file for more info
 
 <img src="https://i.imgur.com/VVl55wj.gif"/>
 

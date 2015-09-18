@@ -1,3 +1,14 @@
+## 0.2.1
+
+### New Features
+* \#14 Files and folders can now be renamed with `Node#rename`
+
+### Changes
+* `rmega-dl`, `rmega-up` commands now properly traverse the cloud storage when searching for a file/folder to download/upload
+* `rmega-dl`: fixed scan for Mega links in a webpage
+* The configuration file (~/.rmega) format is changed (from JSON to YAML)
+* Dropped dependency to ActiveSupport
+
 ## 0.2.0
 
 ### New Features
