@@ -1,7 +1,8 @@
 require 'integration_spec_helper'
 
 describe "rmega-dl" do
-  let(:url) { 'https://mega.co.nz/#!MAkg2Iab!bc9Y2U6d93IlRRKVYpcC9hLZjS4G278OPdH6nTFPDNQ' }
+
+  let(:url) { 'https://mega.nz/#!QQhADCbL!vUY_phwxvkC004t5NKx7vynL16SvFfHYFkiX5vUlgjQ' }
 
   def call(*args)
     `bundle exec ./bin/rmega-dl #{args.join(' ')}`
@@ -22,7 +23,7 @@ describe "rmega-dl" do
     end
   end
 
-  if account_file_exists?
+  if account?
     context "given an account and a path" do
       it "downloads a file" do
         call("/test_folder/a.txt -u #{account['email']} --pass #{account['password']} -o #{temp_folder}")

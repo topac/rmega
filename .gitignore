@@ -22,5 +22,6 @@ tmp
 # RVM
 .rvmrc
 
-# Required to run integration specs
-spec/integration/rmega_account.yml
+# Required to run some specs
+account.yaml
+account.yml

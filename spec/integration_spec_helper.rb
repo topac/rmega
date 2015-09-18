@@ -1,15 +1,21 @@
 require 'spec_helper'
 
 def account_file_path
-  File.join File.dirname(__FILE__), 'integration/rmega_account.yml'
+  File.join(File.dirname(__FILE__), "account.yaml")
 end
 
-def account_file_exists?
-  File.exists? account_file_path
+def account?
+  account
 end
 
 def account
-  @account ||= YAML.load_file account_file_path
+  if ENV["MEGA_EMAIL"] and ENV["MEGA_PASSWORD"]
+    {'email' => ENV["MEGA_EMAIL"], 'password' => ENV["MEGA_PASSWORD"]}
+  elsif File.exists?(account_file_path)
+    YAML.load_file(account_file_path)
+  else
+    nil
+  end
 end
 
 def login

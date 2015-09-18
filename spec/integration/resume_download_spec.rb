@@ -3,7 +3,7 @@ require 'integration_spec_helper'
 module Rmega
   describe 'Resumable download' do
 
-    let(:download_url) { 'https://mega.co.nz/#!NYVkDaLD!BKyN5SRpOaEtGnTcwiAqcxmJc7p-k0IPWKAW-471KRE' }
+    let(:download_url) { 'https://mega.nz/#!oAhCnBKR!CPeG8X92nBjvFsBF9EprZNW_TqIUwItHMkF9G2IZEIo' }
 
     let(:destination_file) { "#{temp_folder}/temp.txt" }
 

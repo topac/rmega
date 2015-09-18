@@ -4,7 +4,7 @@ describe 'File download' do
 
   context 'given a public mega url (a small file)' do
 
-    let(:url) { 'https://mega.co.nz/#!MAkg2Iab!bc9Y2U6d93IlRRKVYpcC9hLZjS4G278OPdH6nTFPDNQ' }
+    let(:url) { 'https://mega.nz/#!QQhADCbL!vUY_phwxvkC004t5NKx7vynL16SvFfHYFkiX5vUlgjQ' }
 
     it 'downloads the related file' do
       Rmega.download(url, temp_folder)
@@ -15,7 +15,7 @@ describe 'File download' do
 
   context 'given a public mega url (a big file)' do
 
-    let(:url) { 'https://mega.co.nz/#!NYVkDaLD!BKyN5SRpOaEtGnTcwiAqcxmJc7p-k0IPWKAW-471KRE' }
+    let(:url) { 'https://mega.nz/#!oAhCnBKR!CPeG8X92nBjvFsBF9EprZNW_TqIUwItHMkF9G2IZEIo' }
 
     it 'downloads the related file' do
       Rmega.download(url, temp_folder)

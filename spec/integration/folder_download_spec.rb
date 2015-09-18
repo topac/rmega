@@ -4,7 +4,7 @@ describe 'Folder download' do
 
   context 'given a public mega url (folder)' do
 
-    let(:url) { 'https://mega.co.nz/#F!IYERlQqa!pvqkX7UUsRGKBs3FWKXzUQ' }
+    let(:url) { 'https://mega.nz/#F!oQYEUaBD!QtYCjQDbBzefFeIM994FIg' }
 
     it 'downloads the related file' do
       Rmega.download(url, temp_folder)
