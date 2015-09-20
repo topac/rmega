@@ -8,7 +8,7 @@ module Rmega
       http_read_timeout:    180,
       # http_proxy_address:   '127.0.0.1',
       # http_proxy_port:      8080,
-      show_progress:        true,
+      show_progress:        false,
       file_integrity_check: true,
       api_url:              'https://eu.api.mega.co.nz/cs'
     }

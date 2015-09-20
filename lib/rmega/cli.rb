@@ -36,11 +36,11 @@ module Rmega
       end
 
       def apply_cli_options
-        Rmega.logger.level = ::Logger::DEBUG if cli_options[:debug]
-
         cli_options.each do |key, value|
           Rmega.options.__send__("#{key}=", value)
         end
+        Rmega.logger.level = ::Logger::DEBUG if cli_options[:debug]
+        Rmega.options.show_progress = true
       end
 
       def apply_opt_parser_options(opts)
