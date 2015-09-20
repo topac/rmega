@@ -28,7 +28,6 @@ end
 
 RSpec.configure do |config|
   config.before(:all) do
-    Rmega.options.show_progress = false
     FileUtils.mkdir_p(temp_folder)
   end
 
