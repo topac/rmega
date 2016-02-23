@@ -1,3 +1,8 @@
+## 0.2.2
+
+### Changes
+* \#17 Fixed download of shared folders
+
 ## 0.2.1
 
 ### New Features
