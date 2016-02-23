@@ -37,7 +37,10 @@ module Rmega
         node = if url =~ FOLDER_URL_REGEXP
           nodes_data = session.request({a: 'f', c: 1, r: 1}, {n: public_handle})
           session.master_key = Utils.base64urldecode(key)
-          session.storage.nodes = nodes_data['f'].map { |data| Nodes::Factory.build(session, data) }
+          session.storage.nodes = nodes_data['f'].map do |data|
+            data["__n"] = public_handle
+            Nodes::Factory.build(session, data)
+          end
           session.storage.nodes[0]
         else
           data = session.request(a: 'g', g: 1, p: public_handle)

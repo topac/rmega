@@ -5,7 +5,10 @@ module Rmega
       include Downloadable
 
       def storage_url
-        @storage_url ||= data['g'] || request(a: 'g', g: 1, n: handle)['g']
+        @storage_url ||= begin
+          query_params = data["__n"] ? {n: data["__n"]} : {}
+          data['g'] || request({a: 'g', g: 1, n: handle}, query_params)['g']
+        end
       end
 
       def size
