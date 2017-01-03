@@ -44,8 +44,16 @@ module Rmega
       end
 
       def apply_opt_parser_options(opts)
-        opts.on("-t NUM", "--thread_pool_size", "Number of threads to use") { |n|
-          cli_options[:thread_pool_size] = n.to_i
+        opts.on("-t NUM", "--thread_pool_size", "Number of threads to use [1-8], default and recommended is #{Rmega.options[:thread_pool_size]}") { |num|
+          num = num.to_i
+
+          if num <= 0
+            num = 1
+          elsif num > 8
+            num = 8
+          end
+
+          cli_options[:thread_pool_size] = num
         }
 
         opts.on("--proxy-addr ADDRESS", "Http proxy address") { |value|
