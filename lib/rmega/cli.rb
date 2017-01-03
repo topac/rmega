@@ -6,7 +6,7 @@ module Rmega
   module CLI
     module Helpers
       def cli_options
-        $cli_options ||= {}
+        $cli_options ||= read_configuration_file
       end
 
       def cli_prompt_password
@@ -27,12 +27,14 @@ module Rmega
       end
 
       def read_configuration_file
-        return unless File.exists?(configuration_filepath)
-        cli_options = YAML.load_file(configuration_filepath)
-        cli_options.keys.each { |k| cli_options[k.to_sym] = cli_options.delete(k) }
-        puts "Loaded configuration file #{configuration_filepath}" if cli_options[:debug]
+        return {} unless File.exists?(configuration_filepath)
+
+        opts = YAML.load_file(configuration_filepath)
+        opts.keys.each { |k| opts[k.to_sym] = opts.delete(k) } # symbolize_keys!
+
+        return opts
       rescue Exception => ex
-        raise(ex) if cli_options[:debug]
+        raise(ex)
       end
 
       def apply_cli_options
@@ -79,7 +81,7 @@ module Rmega
         opts.on("-v", "--version", "Print the version number") {
           puts Rmega::VERSION
           puts Rmega::HOMEPAGE
-          exit!(0)
+          exit(0)
         }
       end
 
@@ -107,7 +109,6 @@ module Rmega
       end
 
       def cli_rescue
-        read_configuration_file
         apply_cli_options
         yield
       rescue Interrupt
