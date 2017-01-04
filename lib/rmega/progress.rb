@@ -72,6 +72,7 @@ module Rmega
 
     def increment(bytes, options = {})
       @mutex.synchronize do
+        @caption = options[:caption] if options[:caption]
         @bytes += bytes
         @real_bytes += bytes unless options[:real] == false
         show
