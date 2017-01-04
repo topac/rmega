@@ -69,7 +69,7 @@ module Rmega
         path = ::File.expand_path(path)
         path = Dir.exists?(path) ? ::File.join(path, name) : path
 
-        progress = Progress.new(filesize, caption: 'Download', filename: self.name)
+        progress = Progress.new(filesize, caption: 'Allocate', filename: self.name)
         pool = Pool.new
 
         @resumed_download = allocated?(path)
@@ -84,12 +84,12 @@ module Rmega
 
             if data
               chunk_macs[start] = calculate_chunck_mac(data) if options.file_integrity_check
-              progress.increment(size, real: false)
+              progress.increment(size, real: false, caption: "Verify")
             else
               data = decrypt_chunk(start, download_chunk(start, size))
               chunk_macs[start] = calculate_chunck_mac(data) if options.file_integrity_check
               write_chunk(start, data)
-              progress.increment(size)
+              progress.increment(size, caption: "Download")
             end
           end
         end
