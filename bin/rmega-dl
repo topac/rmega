@@ -18,6 +18,7 @@ OptionParser.new do |opts|
   opts.banner << "Examples:\n"
   opts.banner << "\t#{File.basename(__FILE__)} 'https://mega.nz/#!aBkHBKLX!n4kqzbJooqc3o_s96PZjN1tEJzQ4QQwskHf7YqKa'\n"
   opts.banner << "\t#{File.basename(__FILE__)} https://www.reddit.com/r/megalinks\n"
+  opts.banner << "\t#{File.basename(__FILE__)} mylinks.txt\n"
   opts.banner << "\t#{File.basename(__FILE__)} /remote/docs/myfile.txt -u email@localhost\n"
   opts.banner << "Options:"
 
@@ -36,13 +37,30 @@ cli_rescue do
     raise("Node not found - #{cli_options[:url]}") unless node
     node.download(cli_options[:output] || Dir.pwd)
   else
-    urls = [cli_options[:url]]
+    urls = []
 
-    unless mega_url?(cli_options[:url])
-      html = Rmega::Session.new.http_get_content(cli_options[:url])
-      urls = html.scan(Rmega::Nodes::Factory::URL_REGEXP).flatten.uniq
-      raise("Nothing to download") if urls.empty?
+    if mega_url?(cli_options[:url])
+      # a valid MEGA urls
+      urls = [cli_options[:url]]
+    else
+      # A text file with a list of MEGA urls (considering only files < 1 Mb)
+      if File.exists?(cli_options[:url])
+        if File.size(cli_options[:url]) < 1_000_000
+          File.open(cli_options[:url], "rb") do |file|
+            file.each_line do |line|
+              line.strip!
+              urls << line if mega_url?(line)
+            end
+          end
+        end
+      else
+        # A link to a web page with some MEGA urls in its body
+        html = Rmega::Session.new.http_get_content(cli_options[:url])
+        urls = html.scan(Rmega::Nodes::Factory::URL_REGEXP).flatten.uniq
+      end
     end
+
+    raise("Nothing to download") if urls.empty?
 
     urls.each_with_index do |url, index|
       node = Rmega::Nodes::Factory.build_from_url(url)
