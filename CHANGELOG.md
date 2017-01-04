@@ -1,3 +1,13 @@
+## 0.2.3
+
+### Changes
+* Fixed reading options from the configuration file (~/.rmega)
+* The max number of parallel threads is now 8
+
+### New Features
+* If `rmega-dl` receive a local file as the main args, that file is treated as a text file that must contains a list of mega links
+* The download progress bar now distinguishes between allocate, verify and download phase
+
 ## 0.2.2
 
 ### Changes
