@@ -46,7 +46,7 @@ module Rmega
       end
 
       def apply_opt_parser_options(opts)
-        opts.on("-t NUM", "--thread_pool_size", "Number of threads to use [1-8], default and recommended is #{Rmega.options[:thread_pool_size]}") { |num|
+        opts.on("-t NUM", "--thread_pool_size", "Number of threads to use [1-8], default and recommended is #{Rmega.options.thread_pool_size}") { |num|
           num = num.to_i
 
           if num <= 0
