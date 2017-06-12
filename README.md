@@ -88,7 +88,7 @@ end
 folder.download("~/Downloads/my_folder")
 
 # Download a file by url
-publid_url = 'https://mega.co.nz/#!MAkg2Iab!bc9Y2U6d93IlRRKVYpcC9hLZjS4G278OPdH6nTFPDNQ'
+public_url = 'https://mega.co.nz/#!MAkg2Iab!bc9Y2U6d93IlRRKVYpcC9hLZjS4G278OPdH6nTFPDNQ'
 Rmega.download(public_url, '~/Downloads')
 ```
 
