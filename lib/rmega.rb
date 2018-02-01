@@ -7,6 +7,7 @@ require 'base64'
 require 'openssl'
 require 'digest/md5'
 require 'json'
+require 'securerandom'
 
 # Used only in specs
 require 'yaml'
