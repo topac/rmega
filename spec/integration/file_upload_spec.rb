@@ -8,7 +8,7 @@ describe 'File upload' do
       @storage = login
     end
 
-    [12, 6_000].each do |size|
+    [12, 6_000, 2_000_000].each do |size|
 
       context "when a file (#{size} bytes) is uploaded" do
 
