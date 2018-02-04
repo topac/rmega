@@ -28,18 +28,21 @@ module Rmega
         cipher.iv = iv if iv
         cipher.key = key
 
-        n = 0
-        mac = nil
+        # n = 0
+        # mac = nil
 
-        loop do
-          block = data[n..n+15]
-          break if !block or block.empty?
-          block << "\x0"*(16-block.size) if block.size < 16
-          n += 16
-          mac = cipher.update(block)
-        end
+        # loop do
+        #   block = data[n..n+15]
+        #   break if !block or block.empty?
+        #   block << "\x0"*(16-block.size) if block.size < 16
+        #   n += 16
+        #   mac = cipher.update(block)
+        # end
 
-        return mac
+        # return mac
+
+        block = data + "\x0" * ((16 - data.bytesize % 16) % 16)
+        return cipher.update(block)[-16..-1]
       end
     end
   end
