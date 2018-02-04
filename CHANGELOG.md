@@ -1,3 +1,9 @@
+## 0.2.4
+
+### Changes
+* \#25 Fix connection reset on file upload
+* \#24 Speed up aes_cbc_mac func
+
 ## 0.2.3
 
 ### Changes
