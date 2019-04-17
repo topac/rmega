@@ -43,6 +43,10 @@ module Rmega
         end
         Rmega.logger.level = ::Logger::DEBUG if cli_options[:debug]
         Rmega.options.show_progress = true
+
+        if Thread.respond_to?(:report_on_exception) and !cli_options[:debug]
+          Thread.report_on_exception = false
+        end
       end
 
       def apply_opt_parser_options(opts)

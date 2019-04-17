@@ -18,7 +18,13 @@ module Rmega
     def http_get_content(url)
       uri = URI(url)
       req = ::Net::HTTP::Get.new(uri.request_uri)
-      return net_http(uri).request(req).body
+      resp = net_http(uri).request(req)
+
+      if resp.code.to_i == 509 and resp.body.to_s.empty?
+        raise BandwidthLimitExceeded.new
+      end
+
+      return resp.body
     end
 
     def http_post(url, data)
