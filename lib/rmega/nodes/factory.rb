@@ -21,7 +21,10 @@ module Rmega
       FOLDER_URL_REGEXP = /\#\F/
 
       def url?(string)
-        string.to_s =~ URL_REGEXP
+        return false unless string.to_s =~ URL_REGEXP
+        public_handle, key = string.strip.split('!')[1, 2]
+        return false if key and (Utils.base64urldecode(key) rescue nil).nil?
+        return true
       end
 
       def build(session, data)

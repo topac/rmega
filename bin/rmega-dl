@@ -56,7 +56,11 @@ cli_rescue do
       else
         # A link to a web page with some MEGA urls in its body
         html = Rmega::Session.new.http_get_content(cli_options[:url])
-        urls = html.scan(Rmega::Nodes::Factory::URL_REGEXP).flatten.uniq
+        urls = html.scan(Rmega::Nodes::Factory::URL_REGEXP).flatten.select { |u| Rmega::Nodes::Factory.url?(u) }.uniq
+
+        if cli_options[:debug] and urls.any?
+          Rmega.logger.debug("#{urls.size} URL(s) founded:\n" + urls.join("\n"))
+        end
       end
     end
 
@@ -64,7 +68,7 @@ cli_rescue do
 
     urls.each_with_index do |url, index|
       node = Rmega::Nodes::Factory.build_from_url(url)
-      print "[#{index+1}/#{urls.size}] " if urls.size > 1
+      puts "[#{index+1}/#{urls.size}] #{url}" if urls.size > 1
       node.download(cli_options[:output] || Dir.pwd)
     end
   end
