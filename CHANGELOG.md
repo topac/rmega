@@ -1,3 +1,9 @@
+## 0.2.5
+
+### Changes
+* \#27 The error raised when the free quota is exceeded is now properly handled
+* \#27 Improved detection of mega link when a generic url is given to ```rmega-dl``` (see cmd line usage)
+
 ## 0.2.4
 
 ### Changes
