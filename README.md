@@ -1,4 +1,7 @@
-# Rmega
+[![Gem Version](https://badge.fury.io/rb/rmega.svg)](https://badge.fury.io/rb/rmega)
+[![Build Status](https://travis-ci.org/topac/rmega.svg?branch=master)](https://travis-ci.org/topac/rmega)
+
+# rmega
 
 Pure ruby library for <img src="https://mega.co.nz/favicon.ico" alt=""/> **MEGA** [https://mega.nz/](https://mega.nz/).  
 Works on Linux and OSX with Ruby 1.9.3+.
@@ -9,22 +12,20 @@ Works on Linux and OSX with Ruby 1.9.3+.
   gem install rmega
 ```
 
-## Command line usage
-
-Since version 0.2.0 you can use the commands `rmega-dl` and `rmega-up` to easily download and upload files to MEGA.
-
- * Downloads are resumable
- * HTTP proxy support
- * See the CHANGELOG file for more info
+## Command Line Usage
 
 <img src="https://i.imgur.com/VVl55wj.gif"/>
 
-*Pro tips:* 
+Since version 0.2.0 you can use the commands `rmega-dl` and `rmega-up` to download and upload files to MEGA.
 
-* Streaming: you can use a video player (e.g. VLC) to play videos while downloading them.
-* Super privacy: you can use it combined with [torsocks](https://github.com/dgoulet/torsocks/) to download and upload files through the Tor network (very slow).
+ * Downloads are resumable
+ * You can download all the links in a given file, e.g. `rmega-dl my_links.txt`
+ * Scrape a web page and download all the MEGA links, e.g. `rmega-dl https://www.reddit.com/r/megalinks/foobar`
+ * HTTP proxy support
+ * Streaming! :beer: You can use a video player (VLC works perfectly) to play videos while downloading them
+ * You can use it combined with [torsocks](https://github.com/dgoulet/torsocks/) to download and upload files through the Tor network (slower)
 
-## DSL usage
+## DSL Usage
 
 ### Login
 
