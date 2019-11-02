@@ -14,7 +14,7 @@ Works on Linux and OSX with Ruby 1.9.3+.
 
 ## Command Line Usage
 
-<img src="https://i.imgur.com/VVl55wj.gif"/>
+<img src="https://i.imgur.com/3cjgp4g.gif"/>
 
 Since version 0.2.0 you can use the commands `rmega-dl` and `rmega-up` to download and upload files to MEGA.
 
