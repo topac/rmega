@@ -2,7 +2,7 @@ module Rmega
   class APIResponse
     attr_reader :body, :code
 
-    # Check out the error codes list at https://mega.co.nz/#doc (section 11)
+    # Check out the error codes list at https://mega.nz/#doc (section 11)
     ERRORS = {
       -1  => 'An internal error has occurred. Please submit a bug report, detailing the exact circumstances in which this error occurred.',
       -2  => 'You have passed invalid arguments to this command.',

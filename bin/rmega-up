@@ -22,6 +22,10 @@ OptionParser.new do |opts|
     cli_options[:remote_path] = path
   }
 
+  opts.on("-l", "--get-link", "Generate and print the sharable link (witk key)") {
+    cli_options[:get_link] = true
+  }
+
   apply_opt_parser_options(opts)
 end.parse!
 
@@ -37,5 +41,9 @@ cli_rescue do
   raise("Node not found - #{cli_options[:remote_path]}") unless node
   raise("Node cannot be a file - #{cli_options[:remote_path]}") if node.type == :file
 
-  node.upload(cli_options[:path])
+  file = node.upload(cli_options[:path])
+  
+  if cli_options[:get_link]
+    puts file.public_url
+  end
 end

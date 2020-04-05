@@ -8,7 +8,8 @@ module Rmega
     let(:destination_file) { "#{temp_folder}/temp.txt" }
 
     before do
-      Thread.abort_on_exception = false
+      Thread.abort_on_exception = false if Thread.respond_to?(:abort_on_exception)
+      Thread.report_on_exception = false if Thread.respond_to?(:report_on_exception)
       allow_any_instance_of(Pool).to receive(:threads_raises_exceptions).and_return(nil)
     end
 

@@ -21,7 +21,7 @@ module Rmega
       end
 
       def public_url
-        @public_url ||= "https://mega.co.nz/#!#{public_handle}!#{Utils.base64urlencode(decrypted_file_key)}"
+        @public_url ||= "https://mega.nz/file/#{public_handle}\##{Utils.base64urlencode(decrypted_file_key)}"
       end
 
       def public_handle
@@ -138,7 +138,8 @@ module Rmega
         elsif file_key
           aes_ecb_decrypt(master_key, file_key)
         else
-          Utils.base64urldecode(public_url.split('!').last)
+          ary = Rmega::Nodes::Factory.public_handle_and_key_from_url(public_url)
+          Utils.base64urldecode(ary[1])
         end
       end
 

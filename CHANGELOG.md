@@ -1,3 +1,9 @@
+## 0.2.6
+
+### New Features
+* Support new links format, e.g. `https://mega.nz/#!foo!bar` is now `https://mega.nz/file/foo#bar`
+* Add `--get-link` flag to `rmega-up`: generate and print the sharable link of the new file
+
 ## 0.2.5
 
 ### Changes

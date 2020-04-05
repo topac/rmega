@@ -16,8 +16,10 @@ OptionParser.new do |opts|
   opts.banner << "\t#{File.basename(__FILE__)} url [options]\n"
   opts.banner << "\t#{File.basename(__FILE__)} path [options]\n"
   opts.banner << "Examples:\n"
-  opts.banner << "\t#{File.basename(__FILE__)} 'https://mega.nz/#!aBkHBKLX!n4kqzbJooqc3o_s96PZjN1tEJzQ4QQwskHf7YqKa'\n"
-  opts.banner << "\t#{File.basename(__FILE__)} https://www.reddit.com/r/megalinks\n"
+  opts.banner << "\t#{File.basename(__FILE__)} 'https://mega.nz/#!aBkHBKLX!n4kqzbJooqcPZjN1tEJzQ4QQwskHf7YqKa'\n"
+  opts.banner << "\t#{File.basename(__FILE__)} https://mega.nz/file/aBkHBKLX#n4kqzbJooqcPZjN1tEJzQ4QQwskHf7YqKa\n"
+  opts.banner << "\t#{File.basename(__FILE__)} https://mega.nz/folder/aBkHBKLX#n4kqzbJooqcPZjN1tEJzQ4QQwskHf7YqKa\n"
+  opts.banner << "\t#{File.basename(__FILE__)} https://www.reddit.com/r/megalinks3\n"
   opts.banner << "\t#{File.basename(__FILE__)} mylinks.txt\n"
   opts.banner << "\t#{File.basename(__FILE__)} /remote/docs/myfile.txt -u email@localhost\n"
   opts.banner << "Options:"
@@ -56,7 +58,10 @@ cli_rescue do
       else
         # A link to a web page with some MEGA urls in its body
         html = Rmega::Session.new.http_get_content(cli_options[:url])
-        urls = html.scan(Rmega::Nodes::Factory::URL_REGEXP).flatten.select { |u| Rmega::Nodes::Factory.url?(u) }.uniq
+
+        urls = html.scan(Rmega::Nodes::Factory::URL_REGEXP)
+        urls << html.scan(Rmega::Nodes::Factory::URL_REGEXP_NEW)
+        urls = urls.flatten.select { |u| Rmega::Nodes::Factory.url?(u) }.uniq
 
         if cli_options[:debug] and urls.any?
           Rmega.logger.debug("#{urls.size} URL(s) founded:\n" + urls.join("\n"))

@@ -23,7 +23,7 @@ def login
 end
 
 def temp_folder
-  Dir.tmpdir
+  $temp_folder ||= "#{Dir.tmpdir}/#{SecureRandom.hex(10)}"
 end
 
 RSpec.configure do |config|
