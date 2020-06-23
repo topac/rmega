@@ -26,6 +26,9 @@ module Rmega
       -20 => 'Write failed',
       -21 => 'Read failed',
       -22 => 'Invalid application key; request not processed',
+      -23 => 'SSL verification failed',
+      -24 => 'Not enough quota',
+      -26 => '2FA required',
     }.freeze
 
     def initialize(http_response)

@@ -1,3 +1,10 @@
+## 0.2.7
+
+### New Features
+* Add support for login ver. 2 (newer accounts only)
+* Add new error codes
+* Fixed crash when uploading file with invalid UTF-8 characters
+
 ## 0.2.6
 
 ### New Features

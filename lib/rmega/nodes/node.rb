@@ -31,14 +31,14 @@ module Rmega
       def serialize_attributes(hash)
         str = "MEGA"
         str << hash.to_json
-        str << ("\x00" * (16 - (str.size % 16)))
+        str << ("\x00" * (16 - (str.bytesize % 16)))
         return str
       end
 
       def rename(new_name)
         node_key = NodeKey.load(decrypted_file_key)
 
-        _attr = serialize_attributes(attributes.merge("n" => new_name))
+        _attr = serialize_attributes(attributes.merge("n" => Utils.utf8(new_name)))
         _attr = aes_cbc_encrypt(node_key.aes_key, _attr)
         _attr = Utils.base64urlencode(_attr)
 

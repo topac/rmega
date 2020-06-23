@@ -8,6 +8,7 @@ require 'openssl'
 require 'digest/md5'
 require 'json'
 require 'securerandom'
+require 'pbkdf2'
 
 # Used only in specs
 require 'yaml'

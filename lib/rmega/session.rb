@@ -86,12 +86,31 @@ module Rmega
     # * The user master_key (128 bit for AES) encrypted with the password_hash
     # * The RSA private key ecrypted with the master_key
     # * A brand new session_id encrypted with the RSA private key
-    def login(email, password)
-      # Derive an hash from the user password
-      password_hash = hash_password(password)
-      u_hash = user_hash(password_hash, email.strip.downcase)
+    def login(email, password)      
+      # discover the version of the account (1: old accounts, >=2: newer accouts)
+      resp = request(a: 'us0', user: email.strip)
+      account_version = resp["v"].to_i
 
-      resp = request(a: 'us', user: email.strip, uh: u_hash)
+      # Derive an hash from the user password
+      if account_version == 1
+        password_hash = hash_password(password)
+        u_hash = user_hash(password_hash, email.strip.downcase)
+      else
+        df2 = PBKDF2.new(
+          :password      => password,
+          :salt          => Utils.base64urldecode(resp['s']),
+          :iterations    => 100000,
+          :hash_function => :sha512,
+          :key_length    => 16 * 2,
+        ).bin_string
+        password_hash = df2[0,16]
+        u_hash = Utils.base64urlencode(df2[16,32])
+      end
+
+      # Send the login request
+      req = {a: 'us', user: email.strip, uh: u_hash}
+      req[:sek] = Utils.base64urlencode(SecureRandom.random_bytes(16)) if account_version != 1
+      resp = request(req)
 
       @master_key = aes_cbc_decrypt(password_hash, Utils.base64urldecode(resp['k']))
       @rsa_privk = decrypt_rsa_private_key(resp['privk'])

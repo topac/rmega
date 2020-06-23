@@ -7,7 +7,7 @@ module Rmega
         node_key = NodeKey.random
 
         # encrypt attributes
-        _attr = serialize_attributes(:n => name.strip)
+        _attr = serialize_attributes(:n => Utils.utf8(name).strip)
         _attr = aes_cbc_encrypt(node_key.aes_key, _attr)
 
         # Encrypt node key

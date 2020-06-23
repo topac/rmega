@@ -40,5 +40,12 @@ module Rmega
         ary
       end.map(&:chr).join
     end
+
+    def utf8(s)
+      str = s.dup
+      str.force_encoding("UTF-8") 
+      str.encode!("UTF-8", invalid: :replace, replace: "-")
+      return str
+    end
   end
 end

@@ -17,6 +17,8 @@ Gem::Specification.new do |gem|
   gem.license       = 'MIT'
   gem.required_ruby_version = '>= 1.9.3'
 
+  gem.add_dependency "pbkdf2-ruby"
+
   gem.add_development_dependency "pry"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "rake"

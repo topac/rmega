@@ -69,7 +69,7 @@ module Rmega
         pool.shutdown
 
         # encrypt attributes
-        _attr = serialize_attributes(:n => ::File.basename(path))
+        _attr = serialize_attributes(:n => Utils.utf8(::File.basename(path)))
         _attr = aes_cbc_encrypt(rnd_node_key.aes_key, _attr)
 
         # Calculate meta_mac
