@@ -33,9 +33,6 @@ module Rmega
       req.body = data
       logger.debug("REQ POST #{url} #{cut_string(data)}")
 
-      # if you don't use Net::Http#start it will not keep the socket open even if you set
-      # the connection header BUT setting the connection header to 'keep-alive' its enough
-      # to fool MEGA servers and don't let them reset your connection!
       req['Connection'] = 'keep-alive'
 
       response = net_http(uri).request(req)
@@ -46,8 +43,7 @@ module Rmega
     private
 
     def net_http(uri)
-      http = ::Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true if uri.scheme == 'https'
+      http = Rmega::ConnPool.get(uri)
 
       # apply common http options
       http.proxy_from_env = false if options.http_proxy_address

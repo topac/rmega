@@ -1,70 +1,56 @@
 module Rmega
   class Pool
     include Options
-
+    
     def initialize
       threads_raises_exceptions
 
-      @mutex = Mutex.new
-      @resource = ConditionVariable.new
-      @max = options.thread_pool_size
+      @queue = Queue.new
+      @threads = []
+      @cv = ConditionVariable.new
+      @working_threads = 0
+      
+      options.thread_pool_size.times do
+        @threads << Thread.new do
+          while proc = @queue.pop
+            mutex.synchronize do
+              @working_threads += 1
+            end
+            
+            proc.call
 
-      @running = []
-      @queue = []
+            mutex.synchronize do
+              @working_threads -= 1
+              
+              if @queue.closed? and @queue.empty? and @working_threads == 0
+                @cv.signal
+              end
+            end
+          end
+        end
+      end
+    end
+
+    def mutex
+      @mutex ||= Mutex.new
     end
 
     def threads_raises_exceptions
       Thread.abort_on_exception = true
     end
 
-    def defer(&block)
-      synchronize { @queue << block }
-      process_queue
+    def process(&block)
+      @queue << block
     end
-
-    alias :process :defer
-
+    
     def wait_done
-      return if done?
-      synchronize { @resource.wait(@mutex) }
-    end
+      @queue.close
 
-    alias :shutdown :wait_done
-
-    private
-
-    def synchronize(&block)
-      @mutex.synchronize(&block)
-    end
-
-    def process_queue
-      synchronize do
-        if @running.size < @max
-          proc = @queue.shift
-          @running << Thread.new(&thread_proc(&proc)) if proc
-        end
+      mutex.synchronize do
+        @cv.wait(mutex)
       end
-    end
 
-    def done?
-      synchronize { @queue.empty? && @running.empty? }
-    end
-
-    def signal_done
-      synchronize { @resource.signal }
-    end
-
-    def thread_terminated
-      synchronize { @running.reject! { |thread| thread == Thread.current } }
-    end
-
-    def thread_proc(&block)
-      Proc.new do
-        block.call
-        thread_terminated
-        process_queue
-        signal_done if done?
-      end
+      @threads.each(&:kill)
     end
   end
 end
