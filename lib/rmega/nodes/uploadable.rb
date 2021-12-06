@@ -66,7 +66,7 @@ module Rmega
           end
         end
 
-        pool.shutdown
+        pool.wait_done
 
         # encrypt attributes
         _attr = serialize_attributes(:n => Utils.utf8(::File.basename(path)))

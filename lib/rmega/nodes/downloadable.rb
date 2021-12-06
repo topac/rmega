@@ -95,7 +95,7 @@ module Rmega
         end
 
         # waits for the last running threads to finish
-        pool.shutdown
+        pool.wait_done
 
         if options.file_integrity_check
           file_mac = aes_cbc_mac(@node_key.aes_key, chunk_macs.sort.map(&:last).join, "\x0"*16)
