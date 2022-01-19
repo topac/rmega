@@ -6,6 +6,7 @@ module Rmega
       threads_raises_exceptions
 
       @queue = Queue.new
+      @queue_closed = false
       @threads = []
       @cv = ConditionVariable.new
       @working_threads = 0
@@ -22,7 +23,7 @@ module Rmega
             mutex.synchronize do
               @working_threads -= 1
               
-              if @queue.closed? and @queue.empty? and @working_threads == 0
+              if @queue_closed and @queue.empty? and @working_threads == 0
                 @cv.signal
               end
             end
@@ -44,7 +45,8 @@ module Rmega
     end
     
     def wait_done
-      @queue.close
+      @queue.close if @queue.respond_to?(:close)
+      @queue_closed = true
 
       mutex.synchronize do
         @cv.wait(mutex)

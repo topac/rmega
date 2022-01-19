@@ -26,7 +26,7 @@ describe "rmega-dl" do
   if account?
     context "given an account and a path" do
       it "downloads a file" do
-        call("/test_folder/a.txt -u #{account['email']} --pass #{account['password']} -o #{temp_folder}")
+        call("/test_folder/a.txt -u #{account['email']} --pass '#{account['password']}' -o #{temp_folder}")
         downloaded_file = "#{temp_folder}/a.txt"
         expect(File.read(downloaded_file)).to eq "hello\n"
       end

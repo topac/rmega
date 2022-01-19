@@ -1,10 +1,11 @@
 [![Gem Version](https://badge.fury.io/rb/rmega.svg)](https://badge.fury.io/rb/rmega)
-[![Build Status](https://travis-ci.org/topac/rmega.svg?branch=master)](https://travis-ci.org/topac/rmega)
+[![rmega](https://circleci.com/gh/topac/rmega.svg?style=svg)](https://circleci.com/gh/topac/rmega)
+
 
 # rmega
 
 Pure ruby library for <img src="https://mega.co.nz/favicon.ico" alt=""/> **MEGA** [https://mega.nz/](https://mega.nz/).  
-Works on Linux and OSX with Ruby 1.9.3+.
+Works on Linux and OSX with Ruby 2.1+.
 
 ## Installation
 

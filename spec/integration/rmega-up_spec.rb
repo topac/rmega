@@ -38,14 +38,14 @@ describe "rmega-up" do
   if account?
     context "when the remote path is missing" do
       it "fails" do
-        resp = call("#{filepath} -u #{account['email']} --pass #{account['password']} -r /foobar")
+        resp = call("#{filepath} -u #{account['email']} --pass '#{account['password']}' -r /foobar")
         expect(resp).to match(/error/i)
       end
     end
 
     context "without specifying a remote folder" do
       it "uploads a file to the root node" do
-        call("#{filepath} -u #{account['email']} --pass #{account['password']}")
+        call("#{filepath} -u #{account['email']} --pass '#{account['password']}'")
         storage = login
         node = storage.root.files.find { |f| f.name == filename }
         node.delete if node
@@ -55,7 +55,7 @@ describe "rmega-up" do
 
     context "when specifying a remote folder" do
       it "uploads a file into that folder" do
-        call("#{filepath} -u #{account['email']} --pass #{account['password']} -r test_folder2")
+        call("#{filepath} -u #{account['email']} --pass '#{account['password']}' -r test_folder2")
         storage = login
         node = storage.root.folders.find { |f| f.name == "test_folder2" }
         node = node.files.find { |f| f.name == filename }
