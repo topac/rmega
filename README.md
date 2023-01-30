@@ -94,7 +94,7 @@ public_url = 'https://mega.nz/file/MAkg2Iab#bc9Y2U6d93IlRRKVYpcC9hLZjS4G278OPdH6
 Rmega.download(public_url, '~/Downloads')
 ```
 
-### Upload
+### Upload a file
 
 ```ruby
 # Upload a file to a specific folder
@@ -103,6 +103,17 @@ folder.upload("~/Downloads/my_file.txt")
 
 # Upload a file to the root folder
 storage.root.upload("~/Downloads/my_other_file.txt")
+```
+
+### Upload a directory
+
+```ruby
+# Upload a directory to a specific folder
+folder = storage.root.folders[3]
+folder.upload_dir("~/Downloads/my_directory")
+
+# Upload a directory to the root folder
+storage.root.upload_dir("~/Downloads/my_other_directory")
 ```
 
 ### Creating a folder

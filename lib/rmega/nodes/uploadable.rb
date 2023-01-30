@@ -85,6 +85,20 @@ module Rmega
       ensure
         file.close if file
       end
+
+      def upload_dir(dir)
+        return create_folder(::File.basename(dir)).upload_dir(dir) unless name == ::File.basename(dir)
+
+        ::Dir["#{dir}/*"].each do |path|
+          name = ::File.basename(path)
+
+          if ::File.directory?(path)
+            create_folder(name).upload_dir(path)
+          elsif ::File.size(path) > 0
+            upload(path)
+          end
+        end
+      end
     end
   end
 end
