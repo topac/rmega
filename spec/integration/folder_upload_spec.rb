@@ -26,16 +26,22 @@ describe 'Folder upload' do
         @storage.root.upload_dir("#{temp_folder}/#{folder}")
 
         uploaded_folder = @storage.root.folders.find { |f| f.name == folder }
+
         expect(uploaded_folder.folders.size).to eq 2
-        expect(uploaded_folder.folders.first.name).to eq subfolder_empty
-        expect(uploaded_folder.folders.last.name).to eq subfolder_with_content
-        expect(uploaded_folder.folders.first).to be_empty
-        expect(uploaded_folder.folders.last).not_to be_empty
-        expect(uploaded_folder.folders.last.files.find { |f| f.name == file1 }).not_to be_nil
-        expect(uploaded_folder.folders.last.files.find { |f| f.name == file2 }).not_to be_nil
+        folder1 = uploaded_folder.folders.find {|f| f.name == subfolder_empty}
+        folder2 = uploaded_folder.folders.find {|f| f.name == subfolder_with_content}
+        
+        expect(folder1).not_to be_nil
+        expect(folder2).not_to be_nil
+        
+        expect(folder1.folders).to be_empty
+        expect(folder1.files).to be_empty
+        
+        expect(folder2.folders).to be_empty
+        expect(folder2.files.find { |f| f.name == file1 }).not_to be_nil
+        expect(folder2.files.find { |f| f.name == file2 }).not_to be_nil
 
         uploaded_folder.delete
-        expect(uploaded_folder).not_to be_nil
       end
     end
   end

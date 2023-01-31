@@ -3,7 +3,7 @@ require 'integration_spec_helper'
 module Rmega
   describe 'Resumable download' do
 
-    let(:download_url) { 'https://mega.nz/#!oAhCnBKR!CPeG8X92nBjvFsBF9EprZNW_TqIUwItHMkF9G2IZEIo' }
+    let(:download_url) { 'https://mega.nz/file/3zpE1ToL#B1L4o8POE4tER4h1tyVoGNxaXFhbjwfxhe3Eyp9nrN8' }
 
     let(:destination_file) { "#{temp_folder}/temp.txt" }
 
@@ -15,18 +15,17 @@ module Rmega
 
     it 'resume a download of a file' do
       node = Nodes::Factory.build_from_url(download_url)
-      content = nil
-
+      
       thread = Thread.new do
         node.download(destination_file)
       end
-
+      
       loop do
         next unless File.exists?(destination_file)
+        content = nil
         node.file_io_synchronize { content = File.read(destination_file) }
-        content.strip!
-        break if content.size > 5_000_000
-        sleep(0.5)
+        break if content.force_encoding("BINARY").strip.size > 2_000_000
+        sleep(0.1)
       end
 
       thread.kill
@@ -36,7 +35,7 @@ module Rmega
       node.download(destination_file)
 
       md5 = Digest::MD5.file(destination_file).hexdigest
-      expect(md5).to eq("0451dc82ac003dbef703342e40a1b8f6")
+      expect(md5).to eq("a92ec9994911866e3ea31aa1d914ac23")
     end
   end
 end

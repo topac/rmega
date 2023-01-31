@@ -4,7 +4,7 @@ describe 'File download' do
 
   context 'given a public mega url (a small file)' do
 
-    let(:url) { 'https://mega.nz/#!QQhADCbL!vUY_phwxvkC004t5NKx7vynL16SvFfHYFkiX5vUlgjQ' }
+    let(:url) { 'https://mega.nz/file/muAVRRbb#zp9dvPvoVck8-4IwTazqsUqol6yiUK7kwLWOwrD8Jqo' }
 
     it 'downloads the related file' do
       Rmega.download(url, temp_folder)
@@ -15,13 +15,13 @@ describe 'File download' do
 
   context 'given a public mega url (a big file)' do
 
-    let(:url) { 'https://mega.nz/#!oAhCnBKR!CPeG8X92nBjvFsBF9EprZNW_TqIUwItHMkF9G2IZEIo' }
+    let(:url) { 'https://mega.nz/file/3zpE1ToL#B1L4o8POE4tER4h1tyVoGNxaXFhbjwfxhe3Eyp9nrN8' }
 
     it 'downloads the related file' do
       Rmega.download(url, temp_folder)
-      related_file = File.join(temp_folder, 'testfile_big_15mb.txt')
+      related_file = File.join(temp_folder, 'testfile_big_15mb.binary')
       md5 = Digest::MD5.file(related_file).hexdigest
-      expect(md5).to eq("0451dc82ac003dbef703342e40a1b8f6")
+      expect(md5).to eq("a92ec9994911866e3ea31aa1d914ac23")
     end
   end
 end
