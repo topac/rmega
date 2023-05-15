@@ -22,7 +22,7 @@ module Rmega
       end
 
       def allocated?(path)
-        ::File.exists?(path) and ::File.size(path) == filesize
+        ::File.exist?(path) and ::File.size(path) == filesize
       end
 
       # Writes a buffer in the local file, starting from the start-n byte.
@@ -67,7 +67,7 @@ module Rmega
 
       def download(path)
         path = ::File.expand_path(path)
-        path = Dir.exists?(path) ? ::File.join(path, name) : path
+        path = Dir.exist?(path) ? ::File.join(path, name) : path
 
         progress = Progress.new(filesize, caption: 'Allocate', filename: self.name)
         pool = Pool.new

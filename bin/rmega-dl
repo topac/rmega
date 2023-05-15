@@ -46,7 +46,7 @@ cli_rescue do
       urls = [cli_options[:url]]
     else
       # A text file with a list of MEGA urls (considering only files < 1 Mb)
-      if File.exists?(cli_options[:url])
+      if File.exist?(cli_options[:url])
         if File.size(cli_options[:url]) < 1_000_000
           File.open(cli_options[:url], "rb") do |file|
             file.each_line do |line|

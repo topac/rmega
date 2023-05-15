@@ -11,7 +11,7 @@ end
 def account
   if ENV["MEGA_EMAIL"] and ENV["MEGA_PASSWORD"]
     {'email' => ENV["MEGA_EMAIL"], 'password' => ENV["MEGA_PASSWORD"]}
-  elsif File.exists?(account_file_path)
+  elsif File.exist?(account_file_path)
     YAML.load_file(account_file_path)
   else
     nil

@@ -27,7 +27,7 @@ module Rmega
       end
 
       def read_configuration_file
-        return {} unless File.exists?(configuration_filepath)
+        return {} unless File.exist?(configuration_filepath)
 
         opts = YAML.load_file(configuration_filepath)
         opts.keys.each { |k| opts[k.to_sym] = opts.delete(k) } # symbolize_keys!

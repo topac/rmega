@@ -30,7 +30,7 @@ OptionParser.new do |opts|
 end.parse!
 
 cli_rescue do
-  raise("File not found - #{cli_options[:path]}") unless File.exists?(cli_options[:path])
+  raise("File not found - #{cli_options[:path]}") unless File.exist?(cli_options[:path])
 
   user = cli_options[:user] || raise("User email is required")
   session = Rmega::Session.new.login(user, cli_options[:pass] ||= cli_prompt_password)

@@ -21,7 +21,7 @@ module Rmega
       end
       
       loop do
-        next unless File.exists?(destination_file)
+        next unless File.exist?(destination_file)
         content = nil
         node.file_io_synchronize { content = File.read(destination_file) }
         break if content.force_encoding("BINARY").strip.size > 2_000_000
