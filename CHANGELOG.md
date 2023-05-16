@@ -1,3 +1,12 @@
+## 0.3.X
+
+### New Features
+* Add support uploading folders
+
+### Changes
+* Connection reuse (pool)
+* Minor changes to support ruby 3.2.x changes and deprecations
+
 ## 0.2.7
 
 ### New Features
