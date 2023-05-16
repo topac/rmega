@@ -1,4 +1,4 @@
-FROM ruby
+FROM ruby:3.2.2-bullseye
 
 RUN apt-get install -y
 
